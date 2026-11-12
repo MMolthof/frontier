@@ -1,0 +1,286 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Balance",
+ "type": "object",
+ "required": [
+  "schema",
+  "tickSeconds",
+  "offlineMaxTicks",
+  "startIsk",
+  "startSkills",
+  "startShip",
+  "startStation",
+  "startSystem",
+  "attributes",
+  "skills",
+  "travel",
+  "market",
+  "refine",
+  "mining",
+  "missions",
+  "liveTickMs",
+  "speeds",
+  "startFitting"
+ ],
+ "properties": {
+  "schema": {
+   "const": 1
+  },
+  "tickSeconds": {
+   "type": "number",
+   "minimum": 1
+  },
+  "offlineMaxTicks": {
+   "type": "integer",
+   "minimum": 1
+  },
+  "startIsk": {
+   "type": "integer",
+   "minimum": 0
+  },
+  "startSkills": {
+   "type": "object",
+   "patternProperties": {
+    "^skill\\.[a-z0-9_]+$": {
+     "type": "integer",
+     "minimum": 1,
+     "maximum": 5
+    }
+   },
+   "additionalProperties": false
+  },
+  "startShip": {
+   "type": "string",
+   "pattern": "^ship\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+  },
+  "startStation": {
+   "type": "string",
+   "pattern": "^cel\\."
+  },
+  "startSystem": {
+   "type": "string",
+   "pattern": "^sys\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+  },
+  "attributes": {
+   "type": "object",
+   "required": [
+    "min",
+    "max",
+    "total",
+    "start",
+    "remapCooldownTicks"
+   ],
+   "properties": {
+    "min": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "max": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "total": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "start": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "integer",
+      "minimum": 0
+     }
+    },
+    "remapCooldownTicks": {
+     "type": "integer",
+     "minimum": 0
+    }
+   }
+  },
+  "skills": {
+   "type": "object",
+   "required": [
+    "queueMax",
+    "baseSp",
+    "levelExponent"
+   ]
+  },
+  "travel": {
+   "type": "object",
+   "required": [
+    "warpScale",
+    "dockTicks",
+    "jumpTicks"
+   ]
+  },
+  "market": {
+   "type": "object",
+   "required": [
+    "feeBase",
+    "feePerTradeLevel",
+    "minDemand",
+    "maxDemand"
+   ]
+  },
+  "refine": {
+   "type": "object",
+   "required": [
+    "stationBase",
+    "tax",
+    "perReprocessing",
+    "perRefineryEfficiency",
+    "perOreSkill"
+   ]
+  },
+  "mining": {
+   "type": "object",
+   "required": [
+    "jetcanM3",
+    "critMultiplier"
+   ]
+  },
+  "missions": {
+   "type": "object",
+   "required": [
+    "levelHourlyRatio",
+    "securityBonusPer01",
+    "standingRequired",
+    "baseIskLevel1"
+   ],
+   "properties": {
+    "levelHourlyRatio": {
+     "type": "array",
+     "items": {
+      "type": "number",
+      "minimum": 0
+     },
+     "minItems": 4,
+     "maxItems": 4
+    },
+    "standingRequired": {
+     "type": "array",
+     "items": {
+      "type": "number",
+      "minimum": 0
+     },
+     "minItems": 4,
+     "maxItems": 4
+    },
+    "baseIskLevel1": {
+     "type": "array",
+     "items": {
+      "type": "number",
+      "minimum": 0
+     },
+     "minItems": 2,
+     "maxItems": 2
+    }
+   }
+  },
+  "economy": {
+   "type": "object",
+   "required": [
+    "ticksPerHour",
+    "starterMiningIskPerHour",
+    "missionHourlyIsk",
+    "missionOverheadTicks",
+    "missionRefDps"
+   ],
+   "properties": {
+    "ticksPerHour": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "starterMiningIskPerHour": {
+     "type": "number",
+     "minimum": 0
+    },
+    "missionHourlyIsk": {
+     "type": "array",
+     "items": {
+      "type": "number",
+      "minimum": 0
+     },
+     "minItems": 4,
+     "maxItems": 4
+    },
+    "missionOverheadTicks": {
+     "type": "array",
+     "items": {
+      "type": "number",
+      "minimum": 0
+     },
+     "minItems": 4,
+     "maxItems": 4
+    },
+    "missionRefDps": {
+     "type": "array",
+     "items": {
+      "type": "number",
+      "minimum": 0
+     },
+     "minItems": 4,
+     "maxItems": 4
+    }
+   }
+  },
+  "liveTickMs": {
+   "type": "integer",
+   "minimum": 1
+  },
+  "speeds": {
+   "type": "array",
+   "items": {
+    "type": "integer",
+    "minimum": 0
+   },
+   "minItems": 2
+  },
+  "startFitting": {
+   "type": "object",
+   "required": [
+    "high",
+    "mid",
+    "low",
+    "rig"
+   ],
+   "properties": {
+    "high": {
+     "type": "array",
+     "items": {
+      "type": [
+       "string",
+       "null"
+      ]
+     }
+    },
+    "mid": {
+     "type": "array",
+     "items": {
+      "type": [
+       "string",
+       "null"
+      ]
+     }
+    },
+    "low": {
+     "type": "array",
+     "items": {
+      "type": [
+       "string",
+       "null"
+      ]
+     }
+    },
+    "rig": {
+     "type": "array",
+     "items": {
+      "type": [
+       "string",
+       "null"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

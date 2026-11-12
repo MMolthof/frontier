@@ -1,0 +1,389 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Schiffe",
+ "type": "object",
+ "required": [
+  "schema",
+  "entries"
+ ],
+ "properties": {
+  "schema": {
+   "const": 1
+  },
+  "entries": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "category",
+     "class",
+     "hull",
+     "tier",
+     "slots",
+     "hardpoints",
+     "fitting",
+     "attributes",
+     "bonuses",
+     "roleBonuses",
+     "requires",
+     "price",
+     "art"
+    ],
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^ship\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1
+     },
+     "category": {
+      "enum": [
+       "mining",
+       "combat",
+       "industrial"
+      ]
+     },
+     "class": {
+      "enum": [
+       "frigate",
+       "destroyer",
+       "cruiser",
+       "battlecruiser",
+       "battleship",
+       "barge",
+       "hauler"
+      ]
+     },
+     "hull": {
+      "enum": [
+       "small",
+       "medium",
+       "large"
+      ]
+     },
+     "tier": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+     },
+     "description": {
+      "type": "string"
+     },
+     "slots": {
+      "type": "object",
+      "required": [
+       "high",
+       "mid",
+       "low",
+       "rig"
+      ],
+      "properties": {
+       "high": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+       },
+       "mid": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+       },
+       "low": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+       },
+       "rig": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+       }
+      },
+      "additionalProperties": false
+     },
+     "hardpoints": {
+      "type": "object",
+      "required": [
+       "turret",
+       "launcher"
+      ],
+      "properties": {
+       "turret": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+       },
+       "launcher": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+       }
+      },
+      "additionalProperties": false
+     },
+     "fitting": {
+      "type": "object",
+      "required": [
+       "powergrid",
+       "cpu",
+       "calibration"
+      ],
+      "properties": {
+       "powergrid": {
+        "type": "number",
+        "minimum": 1
+       },
+       "cpu": {
+        "type": "number",
+        "minimum": 1
+       },
+       "calibration": {
+        "type": "number",
+        "minimum": 0
+       }
+      },
+      "additionalProperties": false
+     },
+     "attributes": {
+      "type": "object",
+      "required": [
+       "structure_hp",
+       "armor_hp",
+       "shield_hp",
+       "capacitor",
+       "cap_recharge_ticks",
+       "speed",
+       "warp_speed",
+       "signature",
+       "max_targets",
+       "lock_range_km",
+       "cargo",
+       "ore_hold",
+       "shield_res_em",
+       "shield_res_th",
+       "shield_res_kin",
+       "shield_res_exp",
+       "armor_res_em",
+       "armor_res_th",
+       "armor_res_kin",
+       "armor_res_exp",
+       "structure_res_em",
+       "structure_res_th",
+       "structure_res_kin",
+       "structure_res_exp"
+      ],
+      "properties": {
+       "structure_hp": {
+        "type": "number",
+        "minimum": 0
+       },
+       "armor_hp": {
+        "type": "number",
+        "minimum": 0
+       },
+       "shield_hp": {
+        "type": "number",
+        "minimum": 0
+       },
+       "capacitor": {
+        "type": "number",
+        "minimum": 0
+       },
+       "cap_recharge_ticks": {
+        "type": "number",
+        "minimum": 0
+       },
+       "speed": {
+        "type": "number",
+        "minimum": 0
+       },
+       "warp_speed": {
+        "type": "number",
+        "minimum": 0
+       },
+       "signature": {
+        "type": "number",
+        "minimum": 0
+       },
+       "max_targets": {
+        "type": "number",
+        "minimum": 0
+       },
+       "lock_range_km": {
+        "type": "number",
+        "minimum": 0
+       },
+       "cargo": {
+        "type": "number",
+        "minimum": 0
+       },
+       "ore_hold": {
+        "type": "number",
+        "minimum": 0
+       },
+       "shield_res_em": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "shield_res_th": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "shield_res_kin": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "shield_res_exp": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "armor_res_em": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "armor_res_th": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "armor_res_kin": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "armor_res_exp": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "structure_res_em": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "structure_res_th": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "structure_res_kin": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       },
+       "structure_res_exp": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+       }
+      },
+      "additionalProperties": false
+     },
+     "bonuses": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "required": [
+        "skill",
+        "stat",
+        "op",
+        "perLevel"
+       ],
+       "properties": {
+        "skill": {
+         "type": "string",
+         "pattern": "^skill\\.[a-z0-9_]+$"
+        },
+        "stat": {
+         "type": "string"
+        },
+        "op": {
+         "enum": [
+          "add",
+          "mul",
+          "set"
+         ]
+        },
+        "perLevel": {
+         "type": "number"
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "roleBonuses": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "required": [
+        "stat",
+        "op",
+        "value"
+       ],
+       "properties": {
+        "stat": {
+         "type": "string"
+        },
+        "op": {
+         "enum": [
+          "add",
+          "mul",
+          "set"
+         ]
+        },
+        "value": {
+         "type": "number"
+        },
+        "appliesTo": {
+         "type": "object",
+         "properties": {
+          "moduleGroup": {
+           "type": "string"
+          },
+          "oreSkill": {
+           "type": "string",
+           "pattern": "^skill\\.[a-z0-9_]+$"
+          }
+         },
+         "additionalProperties": false
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "requires": {
+      "type": "object",
+      "patternProperties": {
+       "^skill\\.[a-z0-9_]+$": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5
+       }
+      },
+      "additionalProperties": false
+     },
+     "price": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "art": {
+      "type": "string",
+      "pattern": "^ship\\.[a-z0-9_]+$"
+     }
+    },
+    "additionalProperties": false
+   }
+  }
+ },
+ "additionalProperties": false
+}
