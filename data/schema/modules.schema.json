@@ -1,0 +1,237 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Module",
+ "type": "object",
+ "required": [
+  "schema",
+  "entries"
+ ],
+ "properties": {
+  "schema": {
+   "const": 1
+  },
+  "entries": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "slot",
+     "group",
+     "category",
+     "size",
+     "fitting",
+     "requires",
+     "effects",
+     "price"
+    ],
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^mod\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1
+     },
+     "slot": {
+      "enum": [
+       "high",
+       "mid",
+       "low",
+       "rig"
+      ]
+     },
+     "hardpoint": {
+      "enum": [
+       "turret",
+       "launcher"
+      ]
+     },
+     "group": {
+      "type": "string",
+      "pattern": "^[a-z_]+$"
+     },
+     "category": {
+      "enum": [
+       "weapon",
+       "mining",
+       "shield",
+       "armor",
+       "propulsion",
+       "engineering",
+       "electronics",
+       "scanner",
+       "rig"
+      ]
+     },
+     "size": {
+      "enum": [
+       "small",
+       "medium",
+       "large"
+      ]
+     },
+     "permanent": {
+      "const": true
+     },
+     "fitting": {
+      "type": "object",
+      "properties": {
+       "powergrid": {
+        "type": "number",
+        "minimum": 0
+       },
+       "cpu": {
+        "type": "number",
+        "minimum": 0
+       },
+       "calibration": {
+        "type": "number",
+        "minimum": 0
+       }
+      },
+      "additionalProperties": false
+     },
+     "requires": {
+      "type": "object",
+      "patternProperties": {
+       "^skill\\.[a-z0-9_]+$": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5
+       }
+      },
+      "additionalProperties": false
+     },
+     "effects": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "required": [
+        "stat",
+        "op",
+        "value"
+       ],
+       "properties": {
+        "stat": {
+         "type": "string"
+        },
+        "op": {
+         "enum": [
+          "add",
+          "mul",
+          "set"
+         ]
+        },
+        "value": {
+         "type": "number"
+        },
+        "stackingGroup": {
+         "type": "string"
+        },
+        "appliesTo": {
+         "type": "object",
+         "properties": {
+          "moduleGroup": {
+           "type": "string"
+          },
+          "oreSkill": {
+           "type": "string",
+           "pattern": "^skill\\.[a-z0-9_]+$"
+          }
+         },
+         "additionalProperties": false
+        }
+       },
+       "additionalProperties": false
+      }
+     },
+     "price": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "description": {
+      "type": "string"
+     },
+     "activation": {
+      "type": "object",
+      "required": [
+       "kind"
+      ],
+      "properties": {
+       "kind": {
+        "enum": [
+         "mine",
+         "attack",
+         "repair",
+         "boost",
+         "scan"
+        ]
+       },
+       "cycleTicks": {
+        "type": "number",
+        "minimum": 1
+       },
+       "capUse": {
+        "type": "number",
+        "minimum": 0
+       },
+       "rangeKm": {
+        "type": "number",
+        "minimum": 0
+       },
+       "yieldM3": {
+        "type": "number",
+        "minimum": 0
+       },
+       "repairs": {
+        "enum": [
+         "shield",
+         "armor"
+        ]
+       },
+       "amount": {
+        "type": "number",
+        "minimum": 0
+       },
+       "damage": {
+        "type": "object",
+        "required": [
+         "em",
+         "th",
+         "kin",
+         "exp"
+        ],
+        "properties": {
+         "em": {
+          "type": "number",
+          "minimum": 0
+         },
+         "th": {
+          "type": "number",
+          "minimum": 0
+         },
+         "kin": {
+          "type": "number",
+          "minimum": 0
+         },
+         "exp": {
+          "type": "number",
+          "minimum": 0
+         }
+        },
+        "additionalProperties": false
+       }
+      },
+      "additionalProperties": false
+     }
+    },
+    "additionalProperties": false
+   }
+  }
+ },
+ "additionalProperties": false
+}

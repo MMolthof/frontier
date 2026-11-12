@@ -30,7 +30,7 @@
   "levelExponent": 2.5
  },
  "travel": {
-  "warpScale": 1.0,
+  "warpScale": 1,
   "dockTicks": 1,
   "undockProtectionTicks": 1,
   "jumpTicks": 1,
@@ -56,7 +56,7 @@
  "mining": {
   "jetcanM3": 27500,
   "jetcanLifeTicks": 120,
-  "critMultiplier": 2.0,
+  "critMultiplier": 2,
   "approachTicks": 1
  },
  "missions": {
@@ -76,7 +76,8 @@
   "baseIskLevel1": [
    8000,
    14000
-  ]
+  ],
+  "hourlyIskLevel1": 21200
  },
  "liveTickMs": 3000,
  "speeds": [
@@ -102,6 +103,28 @@
   "rig": [
    null,
    null
+  ]
+ },
+ "economy": {
+  "ticksPerHour": 60,
+  "starterMiningIskPerHour": 15000,
+  "missionHourlyIsk": [
+   21200,
+   63600,
+   159000,
+   636000
+  ],
+  "missionOverheadTicks": [
+   8,
+   10,
+   12,
+   14
+  ],
+  "missionRefDps": [
+   58,
+   135,
+   330,
+   880
   ]
  }
 }
