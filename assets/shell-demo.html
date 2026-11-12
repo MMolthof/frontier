@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell-Demo · Tick Frontier</title>
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/shell.css">
+<link rel="stylesheet" href="../css/overview.css">
+</head>
+<body>
+<div id="app">Lade …</div>
+<script type="module">
+  // Startet die echte Shell mit Mock-Game. Platzhalter-Ansichten: Sonnensystem (Liste) und Fitting.
+  // URL-Parameter: ?undocked (Start im All), ?empty (leere Datensammlungen), ?combat (Extra-Ansicht unter "Weitere").
+  import { mount } from '../js/ui/shell/index.js';
+  import { view as overview } from '../js/ui/views/overview/index.js';
+  import { view as list } from '../js/ui/shell/demo/placeholder-list.js';
+  import { view as fitting } from '../js/ui/shell/demo/placeholder-fitting.js';
+  import { createMockGame } from '../tests/mocks/mock-game.js';
+
+  const params = new URLSearchParams(location.search);
+  const game = createMockGame({ docked: !params.has('undocked'), emptyData: params.has('empty') });
+  const needsDock = (g) => (g.state.pilot.location.dockedStationId ? { ok: true } : { ok: false, reason: 'Nur in der Station verfügbar.' });
+  const views = [
+    overview, list, fitting,
+    { id: 'hangar', title: 'Hangar (Demo)', group: 'station', order: 20, enabled: needsDock, subs: [{ id: 'items', titleKey: 'shell.nav.hangar.items' }, { id: 'ships', titleKey: 'shell.nav.hangar.ships' }], render(root) { root.textContent = 'Hangar-Demo: nur angedockt erreichbar.'; }, update() {} },
+    { id: 'market', title: 'Markt (Demo)', group: 'station', order: 21, enabled: () => ({ ok: false, reason: 'Der Markt ist in dieser Demo gesperrt.' }), render() {}, update() {} },
+    ...(params.has('combat') ? [{ id: 'combat', title: 'Kampf (Demo)', group: 'main', order: 45, render(root) { root.textContent = 'Extra-Ansicht außerhalb des Menümodells.'; }, update() {} }] : [])
+  ];
+  const ui = mount(document.getElementById('app'), game, { views, warnings: ['Beispielwarnung: ships.json fehlt (Demo).'] });
+
+  // Zeit läuft in der Demo: 1 Tick pro Sekunde mal gewählte Geschwindigkeit.
+  setInterval(() => { const speed = game.select('core/speed'); if (speed > 0) game.advance(speed); }, 1000);
+  window.demo = { game, ui };
+</script>
+</body>
+</html>
