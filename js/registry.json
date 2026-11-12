@@ -1,0 +1,27 @@
+{
+"systems": [
+{"id":"core-demo","path":"core/demo-system.js","order":0},
+{"id":"account","path":"systems/account/index.js","order":10},
+{"id":"skills","path":"systems/skills/index.js","order":20},
+{"id":"ships","path":"systems/ships/index.js","order":25},
+{"id":"inventory","path":"systems/inventory/index.js","order":30},
+{"id":"market","path":"systems/market/index.js","order":35},
+{"id":"travel","path":"systems/travel/index.js","order":40},
+{"id":"fitting","path":"systems/fitting/index.js","order":45},
+{"id":"mining","path":"systems/mining/index.js","order":50},
+{"id":"refine","path":"systems/refine/index.js","order":55},
+{"id":"missions","path":"systems/missions/index.js","order":60},
+{"id":"combat","path":"systems/combat/index.js","order":70}
+],
+"views": [
+{"id":"overview","path":"ui/views/overview/index.js","order":0},
+{"id":"system","path":"ui/views/system/index.js","order":10},
+{"id":"hangar","path":"ui/views/hangar/index.js","order":20},
+{"id":"market","path":"ui/views/market/index.js","order":21},
+{"id":"missions","path":"ui/views/missions/index.js","order":22},
+{"id":"fitting","path":"ui/views/fitting/index.js","order":30},
+{"id":"mining","path":"ui/views/mining/index.js","order":40},
+{"id":"combat","path":"ui/views/combat/index.js","order":45},
+{"id":"skills","path":"ui/views/skills/index.js","order":50}
+]
+}

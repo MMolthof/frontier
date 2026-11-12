@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tick Frontier</title>
+<style>
+:root{color-scheme:light;--bg:#eef2f5;--panel:#fff;--ink:#16222b;--mute:#5d6d78;--line:#d3dce2;--acc:#1f6f8b;--acc2:#e3f0f5;--gold:#a8700e;--red:#b23a3a;--ok:#2f7d4f;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+#app{display:flex;min-height:100vh}
+nav{width:190px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);padding:6px 0;position:sticky;top:0;height:100vh;overflow:auto}
+nav button{display:flex;gap:10px;align-items:center;width:100%;background:none;border:0;border-left:3px solid transparent;color:var(--ink);padding:9px 12px;text-align:left;border-radius:0;cursor:pointer;font:inherit}
+nav button.sub{padding-left:32px;font-size:13px;color:var(--mute)}
+nav button.open{font-weight:600}
+nav button.on{background:var(--acc2);border-left-color:var(--acc);color:var(--acc);font-weight:600}
+.g{width:18px;text-align:center;flex-shrink:0}
+#main{flex:1;min-width:0}
+#top{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;background:var(--panel);border-bottom:1px solid var(--line);padding:8px 14px}
+#top b{font-variant-numeric:tabular-nums}
+#view{padding:14px;max-width:900px}
+h2{font-size:16px;margin:0 0 8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px}
+.bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+button.b{font:inherit;border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer}
+button.b.alt{background:#fff;color:var(--acc)}
+button.b.on{background:var(--ink);border-color:var(--ink);color:#fff}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:3px solid #f2b84b;outline-offset:2px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.row:first-of-type{border-top:0}
+.mute{color:var(--mute);font-size:13px}
+.ic{display:flex;gap:8px;align-items:center}
+.meter{height:8px;background:var(--acc2);border-radius:4px;overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;background:var(--acc)}
+.meter.s i{background:var(--gold)}
+.up{color:var(--ok)}.down{color:var(--red)}
+.log div{padding:3px 0;border-top:1px solid var(--line);font-size:13px}
+.log .bad{color:var(--red)}.log .good{color:var(--ok)}
+input[type=number]{width:84px;font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px}
+#map svg,.spark{width:100%;height:auto;background:#f3f7fa;border-radius:6px}
+@media (max-width:640px){nav{width:52px}nav .t{display:none}nav button,nav button.sub{padding:11px 0;justify-content:center}#view{padding:10px}}
+</style>
+</head>
+<body>
+<div id="app"><nav id="nav"></nav><div id="main"><div id="top"></div><div id="view"></div></div></div>
+<script>
+const TICK_MS=3000;
+const SYS={ald:{n:"Aldara",sec:1.0,ore:"veld",mk:1.0,adj:{bre:2,kes:5}},bre:{n:"Brenn",sec:0.8,ore:"scor",mk:0,adj:{ald:2,kes:3}},kes:{n:"Kestor",sec:0.5,ore:"scor",mk:1.15,adj:{ald:5,bre:3,vae:3}},vae:{n:"Vael",sec:0.3,ore:"pyro",mk:0,adj:{kes:3,dro:4}},dro:{n:"Drosk",sec:0.1,ore:"pyro",mk:0,adj:{vae:4}}};
+const POS={ald:[50,100],bre:[120,45],kes:[150,130],vae:[225,90],dro:[275,150]};
+const ITM={veld:{n:"Veldspar",p:10,d:2000,k:"ore",c:"#7b8c99"},scor:{n:"Scordite",p:18,d:2000,k:"ore",c:"#b8651d"},pyro:{n:"Pyroxeres",p:35,d:2000,k:"ore",c:"#c9a227"},trit:{n:"Tritanium",p:4,d:3000,k:"min",c:"#8ea3b0"},pyer:{n:"Pyerite",p:12,d:2000,k:"min",c:"#4a90b8"},mex:{n:"Mexallon",p:40,d:1000,k:"min",c:"#6b8f4e"},laser:{n:"Bergbaulaser II",k:"mod"},hold:{n:"Frachterweiterung",k:"mod"},inert:{n:"Trägheitsdämpfer",k:"mod"}};
+const TRADE=Object.keys(ITM).filter(k=>ITM[k].p), ORE=TRADE.filter(k=>ITM[k].k==="ore");
+const REF={veld:{trit:.9},scor:{trit:.6,pyer:.25},pyro:{trit:.4,pyer:.4,mex:.12}};
+const MODS={laser:{desc:"+15 % Abbau",cost:{trit:250,pyer:60},t:30},hold:{desc:"+20 % Fracht",cost:{trit:300,pyer:40},t:30},inert:{desc:"-10 % Reisezeit",cost:{trit:200,pyer:80,mex:15},t:40}};
+const SHIPS={skiff:{n:"Skiff",yield:8,cargo:100,cost:0,slots:1},venture:{n:"Venture",yield:20,cargo:300,cost:2500,slots:2},retriever:{n:"Retriever",yield:45,cargo:800,cost:12000,slots:3}};
+const SKILLS={mining:{n:"Bergbau",desc:"+8 % Abbau pro Stufe"},nav:{n:"Navigation",desc:"-8 % Reisezeit pro Stufe"},trade:{n:"Handel",desc:"-1 % Marktgebühr pro Stufe"},refine:{n:"Raffination",desc:"+4 % Ausbeute pro Stufe"}};
+const skillTicks=l=>20*l*l;
+const NAV=[{id:"overview",g:"◉",n:"Übersicht"},{id:"map",g:"✦",n:"Sternkarte"},{n:"Markt",g:"¤",sub:[{id:"market",g:"↗",n:"Verkaufen"},{id:"prices",g:"∿",n:"Preisverlauf"}]},{n:"Lager",g:"▣",sub:[{id:"items",g:"▤",n:"Items"},{id:"ships",g:"▲",n:"Schiffe"}]},{n:"Industrie",g:"⚙",sub:[{id:"refine",g:"◈",n:"Raffinerie"},{id:"prod",g:"▦",n:"Produktion"}]},{id:"fit",g:"✚",n:"Fitting"},{id:"skills",g:"★",n:"Skills"},{id:"log",g:"≡",n:"Protokoll"}];
+
+let S;
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString("de-DE");
+function fresh(){const dem={},hist={};for(const s in SYS)if(SYS[s].mk){dem[s]={};hist[s]={};TRADE.forEach(k=>{dem[s][k]=1;hist[s][k]=[]})}
+ return{tick:0,cred:0,loc:"ald",ships:[{uid:1,t:"skiff",loc:"ald",fit:[],cargo:{veld:0,scor:0,pyro:0}}],active:1,uidc:1,stock:{},act:{type:"idle"},skills:{mining:0,nav:0,trade:0,refine:0},train:null,job:null,dem,hist,qty:{},view:"overview",log:[],last:Date.now()}}
+function load(){try{const r=localStorage.getItem("tf_save2");if(r)return JSON.parse(r)}catch(e){}return null}
+function save(){try{S.last=Date.now();localStorage.setItem("tf_save2",JSON.stringify(S))}catch(e){}}
+const cur=()=>S.ships.find(s=>s.uid===S.active);
+const stk=(s)=>S.stock[s||S.loc]||(S.stock[s||S.loc]={});
+const have=k=>stk()[k]||0;
+const cargoUsed=()=>Object.values(cur().cargo).reduce((a,b)=>a+b,0);
+const nFit=id=>cur().fit.filter(m=>m===id).length;
+const yieldOf=()=>Math.round(SHIPS[cur().t].yield*(1+.08*S.skills.mining)*(1+.15*nFit("laser")));
+const cargoMax=()=>Math.round(SHIPS[cur().t].cargo*(1+.2*nFit("hold")));
+const navTime=b=>Math.max(1,Math.round(b*(1-.08*S.skills.nav)*(1-.1*nFit("inert"))));
+const dock=()=>SYS[S.loc].mk>0;
+const fee=()=>.05-.01*S.skills.trade;
+const idle=()=>S.act.type==="idle";
+function log(t,c){S.log.unshift({t:S.tick,m:t,c:c||""});S.log.length=Math.min(S.log.length,50)}
+const price=(s,k)=>ITM[k].p*SYS[s].mk*S.dem[s][k];
+function quote(s,k,q){const d=S.dem[s][k],d2=Math.max(.4,d*(1-q/ITM[k].d)),avg=ITM[k].p*SYS[s].mk*(d+d2)/2;return{avg,d2,net:Math.round(q*avg*(1-fee()))}}
+const qtyOf=k=>{const v=parseInt(S.qty[k]);return Math.min(have(k),v>0?v:have(k))};
+
+function tick(){S.tick++;
+ for(const s in S.dem)for(const k of TRADE){let d=S.dem[s][k];d+=(1-d)*.03+(Math.random()-.5)*.02;d=Math.max(.4,Math.min(1.6,d));S.dem[s][k]=d;const h=S.hist[s][k];h.push(+price(s,k).toFixed(2));if(h.length>60)h.shift()}
+ if(S.train){S.train.left--;if(S.train.left<=0){S.skills[S.train.id]++;log(SKILLS[S.train.id].n+" auf Stufe "+S.skills[S.train.id]+" trainiert","good");S.train=null}}
+ if(S.job){S.job.left--;if(S.job.left<=0){const t=stk(S.job.sys);t[S.job.id]=(t[S.job.id]||0)+1;log(ITM[S.job.id].n+" gefertigt in "+SYS[S.job.sys].n,"good");S.job=null}}
+ const a=S.act,c=cur();
+ if(a.type==="travel"){a.left--;if(a.left<=0){S.loc=a.to;c.loc=a.to;S.act={type:"idle"};log("Angekommen in "+SYS[S.loc].n)}}
+ else if(a.type==="mine"){const sys=SYS[S.loc],y=Math.min(cargoMax()-cargoUsed(),yieldOf());c.cargo[sys.ore]+=y;
+  if(sys.sec<.5&&Math.random()<(.5-sys.sec)*.05){for(const o in c.cargo)c.cargo[o]=Math.floor(c.cargo[o]*.7);log("Piraten überfallen dich in "+sys.n+"! 30 % der Fracht verloren.","bad")}
+  if(cargoUsed()>=cargoMax()){S.act={type:"idle"};log("Frachtraum voll, Abbau beendet.")}}}
+function catchUp(){const n=Math.min(2000,Math.floor((Date.now()-S.last)/TICK_MS));if(n>0){for(let i=0;i<n;i++)tick();log(n+" Ticks seit deinem letzten Besuch simuliert.")}}
+
+const A={
+ v(id){S.view=id;render()},
+ mine(){if(S.act.type==="mine")S.act={type:"idle"};else if(idle()&&cargoUsed()<cargoMax()){S.act={type:"mine"};log("Abbau gestartet in "+SYS[S.loc].n)}render()},
+ go(to){if(!idle()||!SYS[S.loc].adj[to])return;const t=navTime(SYS[S.loc].adj[to]);S.act={type:"travel",to,left:t,total:t};log("Reise nach "+SYS[to].n+" ("+t+" Ticks)");render()},
+ train(id){if(S.train||S.skills[id]>=5)return;const l=S.skills[id]+1;S.train={id,left:skillTicks(l),total:skillTicks(l)};log("Training gestartet: "+SKILLS[id].n+" "+l);render()},
+ sp(m){setSpeed(+m)},
+ unload(k){if(!dock())return;const c=cur().cargo;stk()[k]=have(k)+c[k];c[k]=0;render()},
+ unloadAll(){ORE.forEach(k=>A.unload(k))},
+ load(k){if(!dock())return;const c=cur().cargo,q=Math.min(have(k),cargoMax()-cargoUsed());c[k]+=q;stk()[k]-=q;render()},
+ sell(k){if(!dock())return;const q=qtyOf(k);if(!q)return;const r=quote(S.loc,k,q);stk()[k]-=q;S.dem[S.loc][k]=r.d2;S.cred+=r.net;S.qty[k]="";log(q+" "+ITM[k].n+" verkauft für "+fmt(r.net)+" Cr (Ø "+r.avg.toFixed(1)+")","good");render()},
+ refine(k){if(!dock())return;const q=have(k);if(!q)return;for(const m in REF[k])stk()[m]=have(m)+Math.floor(q*REF[k][m]*(.7+.04*S.skills.refine));stk()[k]=0;log(ITM[k].n+" raffiniert","good");render()},
+ build(id){const d=MODS[id];if(!dock()||S.job)return;for(const m in d.cost)if(have(m)<d.cost[m])return;for(const m in d.cost)stk()[m]-=d.cost[m];S.job={id,sys:S.loc,left:d.t,total:d.t};log("Fertigung gestartet: "+ITM[id].n);render()},
+ fit(id){const c=cur();if(!dock()||!idle()||have(id)<1||c.fit.length>=SHIPS[c.t].slots)return;stk()[id]--;c.fit.push(id);render()},
+ unfit(i){const c=cur();if(!dock()||!idle())return;const id=c.fit[i];c.fit.splice(i,1);if(cargoUsed()>cargoMax()){c.fit.splice(i,0,id);log("Erst Fracht entladen, dann ausbauen.","bad");render();return}stk()[id]=have(id)+1;render()},
+ buy(t){const s=SHIPS[t];if(S.loc!=="ald"||S.cred<s.cost)return;S.cred-=s.cost;S.ships.push({uid:++S.uidc,t,loc:S.loc,fit:[],cargo:{veld:0,scor:0,pyro:0}});log(s.n+" gekauft und in Aldara geparkt","good");render()},
+ board(u){const s=S.ships.find(x=>x.uid==u);if(!s||!dock()||!idle()||s.loc!==S.loc)return;S.active=s.uid;log("Umgestiegen auf "+SHIPS[s.t].n);render()},
+ sellShip(u){const i=S.ships.findIndex(x=>x.uid==u),s=S.ships[i];if(!s||s.uid===S.active||!SHIPS[s.t].cost)return;s.fit.forEach(m=>{stk(s.loc)[m]=(stk(s.loc)[m]||0)+1});ORE.forEach(k=>{stk(s.loc)[k]=(stk(s.loc)[k]||0)+s.cargo[k]});S.cred+=SHIPS[s.t].cost/2;S.ships.splice(i,1);log(SHIPS[s.t].n+" verkauft, Fracht und Module ins Lager","good");render()},
+ reset(){if(confirm("Spielstand löschen und neu beginnen?")){S=fresh();save();render()}}
+};
+
+function icon(k){const m=ITM[k];if(m.k==="mod")return'<span class="g">⚙</span>';return`<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><polygon points="9,1 16,7 13,16 5,16 2,7" fill="${m.c}"/><polygon points="9,1 16,7 9,9" fill="#fff" opacity=".35"/></svg>`}
+function shipSVG(id){const b={skiff:'<polygon points="8,30 50,18 78,30 50,42"/><polygon points="30,30 44,8 50,18"/><polygon points="30,30 44,52 50,42"/>',venture:'<polygon points="6,30 40,20 84,26 84,34 40,40"/><rect x="40" y="8" width="30" height="8" rx="3"/><rect x="40" y="44" width="30" height="8" rx="3"/>',retriever:'<polygon points="4,30 24,14 80,14 92,30 80,46 24,46"/><rect x="30" y="22" width="40" height="16" fill="#e3f0f5"/>'};
+ return`<svg viewBox="0 0 100 60" width="90" height="54" fill="#1f6f8b" role="img" aria-label="${SHIPS[id].n}">${b[id]}<circle cx="6" cy="30" r="3" fill="#a8700e"/></svg>`}
+function spark(a,h){if(a.length<2)return"";const mn=Math.min(...a),mx=Math.max(...a),r=mx-mn||1;const p=a.map((v,i)=>(i*300/(a.length-1)).toFixed(1)+","+(h-4-(v-mn)/r*(h-8)).toFixed(1)).join(" ");return`<svg class="spark" viewBox="0 0 300 ${h}" preserveAspectRatio="none"><polyline fill="none" stroke="#1f6f8b" stroke-width="1.5" points="${p}"/></svg>`}
+function mapSVG(){const a=S.act,cu=SYS[S.loc];let e="",n="",sh="";const col=s=>s>=.8?"#2f7d4f":s>=.5?"#a8700e":"#b23a3a";
+ for(const k in SYS)for(const j in SYS[k].adj)if(k<j)e+=`<line x1="${POS[k][0]}" y1="${POS[k][1]}" x2="${POS[j][0]}" y2="${POS[j][1]}" stroke="#9fb3bf" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+ for(const k in SYS){const s=SYS[k],[x,y]=POS[k],here=k===S.loc&&a.type!=="travel",go=idle()&&cu.adj[k];
+  n+=`<g ${go?`data-a="go" data-p="${k}" style="cursor:pointer"`:""}>${here?`<circle cx="${x}" cy="${y}" r="15" fill="none" stroke="#1f6f8b" stroke-width="2"/>`:""}<circle cx="${x}" cy="${y}" r="9" fill="${col(s.sec)}"/>${s.mk?`<rect x="${x-3}" y="${y-3}" width="6" height="6" fill="#fff"/>`:""}<text x="${x}" y="${y+26}" text-anchor="middle" font-size="10" fill="#16222b">${s.n}${go?" ("+navTime(cu.adj[k])+")":""}</text></g>`}
+ if(a.type==="travel"){const p=(a.total-a.left)/a.total,[x1,y1]=POS[S.loc],[x2,y2]=POS[a.to];sh=`<circle cx="${x1+(x2-x1)*p}" cy="${y1+(y2-y1)*p}" r="4" fill="#a8700e" stroke="#fff"/>`}
+ return`<svg viewBox="0 0 320 190" role="img" aria-label="Sternkarte">${e}${n}${sh}</svg>`}
+const actText=()=>{const a=S.act;return a.type==="idle"?"Leerlauf":a.type==="mine"?"Baut "+ITM[SYS[S.loc].ore].n+" ab":"Unterwegs nach "+SYS[a.to].n+", noch "+a.left+" Ticks"};
+const noStation='<div class="card"><div class="mute">Hier gibt es keine Station. Fliege nach Aldara oder Kestor.</div></div>';
+
+const VIEWS={
+ overview(){const c=cur(),u=cargoUsed(),m=cargoMax(),a=S.act;
+  return`<div class="card"><div class="bar" style="gap:16px">${shipSVG(c.t)}<div><b style="font-size:18px">${SHIPS[c.t].n}</b><div class="mute">${SYS[S.loc].n} · ${dock()?"Station":"Asteroidengürtel"} · Abbau ${yieldOf()}/Tick</div><div class="mute">${actText()}</div></div></div>
+  <div class="meter"><i style="width:${a.type==="travel"?100*(a.total-a.left)/a.total:a.type==="mine"?100*u/m:0}%"></i></div>
+  <div class="bar" style="margin-top:10px"><button class="b" data-a="mine" ${a.type==="travel"||(idle()&&u>=m)?"disabled":""}>${a.type==="mine"?"Abbau stoppen":"Abbau starten"}</button>${dock()?`<button class="b alt" data-a="v" data-p="items">Zum Lager</button>`:""}</div>
+  <div class="mute" style="margin-top:6px">${ITM[SYS[S.loc].ore].n} in diesem System${SYS[S.loc].sec<.5?", Piratengefahr":""}</div></div>
+  <div class="card"><h2>Schiffsfracht</h2>${ORE.map(k=>`<div class="row"><span class="ic">${icon(k)}${ITM[k].n}</span><b>${c.cargo[k]}</b></div>`).join("")}<div class="meter s"><i style="width:${100*u/m}%"></i></div><div class="mute">${u} / ${m} Einheiten. Erz gehört erst nach dem Entladen ins Stationslager, dort kannst du es verkaufen oder raffinieren.</div></div>`},
+ map(){return`<div class="card" id="map"><h2>Sternkarte</h2>${mapSVG()}<div class="mute">Grün sicher, gelb Grenzland, rot Piratengebiet. Weißes Quadrat: Station mit Markt. Klick auf ein System fliegt hin (Ticks in Klammern). Dein Schiff bleibt in Stationen geparkt, wenn du umsteigst.</div></div>`},
+ market(){if(!dock())return noStation;const s=S.loc;
+  return`<div class="card"><h2>Markt in ${SYS[s].n}</h2><div class="mute">Jeder Verkauf drückt den Preis (je mehr Menge, desto stärker). Die Nachfrage erholt sich pro Tick. Gebühr ${Math.round(fee()*100)} %.</div>`+TRADE.map(k=>{const d=S.dem[s][k],q=qtyOf(k);
+   return`<div class="row"><div style="min-width:170px"><span class="ic">${icon(k)}<b>${ITM[k].n}</b></span><div class="mute">${price(s,k).toFixed(1)} Cr <span class="${d>=1?"up":"down"}">${d>=1?"▲":"▼"}</span> · Nachfrage ${Math.round(d*100)} %</div><div class="meter" style="width:130px"><i style="width:${Math.min(100,d/1.6*100)}%"></i></div></div>
+   <div class="mute">Lager: <b>${have(k)}</b></div>
+   <div class="bar"><input type="number" min="1" data-q="${k}" placeholder="Alle" value="${S.qty[k]||""}" aria-label="Menge ${ITM[k].n}"><button class="b" data-a="sell" data-p="${k}" ${q?"":"disabled"}>Verkaufen</button></div>
+   <div class="mute" id="pv-${k}" style="width:100%">${preview(k,q)}</div></div>`}).join("")+`</div>`},
+ prices(){if(!dock())return noStation;return`<div class="card"><h2>Preisverlauf in ${SYS[S.loc].n}</h2>`+TRADE.map(k=>{const h=S.hist[S.loc][k];return`<div style="margin-bottom:10px"><span class="ic">${icon(k)}<b>${ITM[k].n}</b> <span class="mute">${price(S.loc,k).toFixed(1)} Cr${h.length>1?" · Spanne "+Math.min(...h).toFixed(1)+" bis "+Math.max(...h).toFixed(1):""}</span></span>${spark(h,54)}</div>`}).join("")+`</div>`},
+ items(){const c=cur(),m=cargoMax(),all=Object.keys(S.stock).filter(s=>Object.values(S.stock[s]).some(v=>v>0));
+  let h=`<div class="card"><h2>Schiffsfracht (${SHIPS[c.t].n})</h2>`+ORE.map(k=>`<div class="row"><span class="ic">${icon(k)}${ITM[k].n}</span><span class="bar"><b>${c.cargo[k]}</b><button class="b alt" data-a="unload" data-p="${k}" ${dock()&&c.cargo[k]?"":"disabled"}>Ins Lager</button></span></div>`).join("")+`<div class="bar" style="margin-top:8px"><button class="b" data-a="unloadAll" ${dock()?"":"disabled"}>Alles entladen</button><span class="mute">${cargoUsed()} / ${m}</span></div></div>`;
+  h+=dock()?`<div class="card"><h2>Lager in ${SYS[S.loc].n}</h2>`+Object.keys(ITM).map(k=>{const q=have(k);return q?`<div class="row"><span class="ic">${icon(k)}${ITM[k].n}</span><span class="bar"><b>${q}</b>${ITM[k].k==="ore"?`<button class="b alt" data-a="load" data-p="${k}" ${cargoUsed()<m?"":"disabled"}>Ins Schiff</button>`:""}</span></div>`:""}).join("")||`<div class="mute">Leer. Entlade Erz aus deinem Schiff.</div>`:"";
+  h+=dock()?"</div>":noStation;
+  h+=`<div class="card"><h2>Alle Lagerorte</h2>${all.map(s=>`<div class="row"><b>${SYS[s].n}</b><span class="mute">${Object.keys(S.stock[s]).filter(k=>S.stock[s][k]>0).map(k=>S.stock[s][k]+" "+ITM[k].n).join(", ")}</span></div>`).join("")||'<div class="mute">Noch nichts eingelagert.</div>'}</div>`;return h},
+ ships(){let h=`<div class="card"><h2>Hangar</h2>`+S.ships.map(s=>{const act=s.uid===S.active,here=s.loc===S.loc;
+   return`<div class="row"><span class="ic">${shipSVG(s.t).replace('width="90" height="54"','width="60" height="36"')}<span><b>${SHIPS[s.t].n}</b>${act?" (aktiv)":""}<br><span class="mute">${SYS[s.loc].n} · ${s.fit.length}/${SHIPS[s.t].slots} Module · Fracht ${Object.values(s.cargo).reduce((a,b)=>a+b,0)}</span></span></span>
+   <span class="bar">${act?"":`<button class="b" data-a="board" data-p="${s.uid}" ${here&&dock()&&idle()?"":"disabled"}>Einsteigen</button>${SHIPS[s.t].cost?`<button class="b alt" data-a="sellShip" data-p="${s.uid}">Verkaufen ${fmt(SHIPS[s.t].cost/2)} Cr</button>`:""}`}</span></div>`}).join("")+`<div class="mute">Zum Umsteigen muss das Schiff in deiner aktuellen Station geparkt sein und du im Leerlauf sein.</div></div>`;
+  h+=`<div class="card"><h2>Werft Aldara</h2>`+(S.loc==="ald"?Object.keys(SHIPS).filter(t=>SHIPS[t].cost).map(t=>`<div class="row"><span><b>${SHIPS[t].n}</b><br><span class="mute">Abbau ${SHIPS[t].yield}/Tick · Fracht ${SHIPS[t].cargo} · ${SHIPS[t].slots} Slots</span></span><button class="b alt" data-a="buy" data-p="${t}" ${S.cred>=SHIPS[t].cost?"":"disabled"}>${fmt(SHIPS[t].cost)} Cr</button></div>`).join(""):'<div class="mute">Schiffe gibt es nur in Aldara.</div>')+`</div>`;return h},
+ refine(){if(!dock())return noStation;return`<div class="card"><h2>Raffinerie ${SYS[S.loc].n}</h2><div class="mute">Raffiniert Erz aus dem Stationslager. Ausbeute ${Math.round(70+4*S.skills.refine)} %.</div>`+ORE.map(k=>`<div class="row"><span class="ic">${icon(k)}${ITM[k].n} <b>${have(k)}</b></span><button class="b alt" data-a="refine" data-p="${k}" ${have(k)?"":"disabled"}>Raffinieren</button></div>`).join("")+`</div><div class="card"><h2>Mineralien im Lager</h2>`+["trit","pyer","mex"].map(k=>`<div class="row"><span class="ic">${icon(k)}${ITM[k].n}</span><b>${have(k)}</b></div>`).join("")+`</div>`},
+ prod(){if(!dock())return noStation;const j=S.job;return`<div class="card"><h2>Produktion</h2>`+(j?`<div class="mute">Auftrag: ${ITM[j.id].n} in ${SYS[j.sys].n}, noch ${j.left} Ticks</div><div class="meter"><i style="width:${100*(j.total-j.left)/j.total}%"></i></div>`:'<div class="mute">Material kommt aus dem Stationslager, das Ergebnis landet dort. Ein Auftrag gleichzeitig.</div>')+Object.keys(MODS).map(m=>{const c=MODS[m].cost,ok=!j&&Object.keys(c).every(k=>have(k)>=c[k]);return`<div class="row"><span><b>${ITM[m].n}</b> <span class="mute">${MODS[m].desc}</span><br><span class="mute">${Object.keys(c).map(k=>c[k]+" "+ITM[k].n).join(", ")} · ${MODS[m].t} Ticks</span></span><button class="b alt" data-a="build" data-p="${m}" ${ok?"":"disabled"}>Bauen</button></div>`}).join("")+`</div>`},
+ fit(){const c=cur();if(!dock())return noStation;return`<div class="card"><h2>Fitting ${SHIPS[c.t].n}</h2><div class="mute">Slots ${c.fit.length}/${SHIPS[c.t].slots}. Module liegen im Stationslager.</div>`+c.fit.map((m,i)=>`<div class="row"><span>${ITM[m].n} <span class="mute">${MODS[m].desc}</span></span><button class="b alt" data-a="unfit" data-p="${i}" ${idle()?"":"disabled"}>Ausbauen</button></div>`).join("")+Object.keys(MODS).filter(m=>have(m)>0).map(m=>`<div class="row"><span>${ITM[m].n} ×${have(m)}</span><button class="b" data-a="fit" data-p="${m}" ${idle()&&c.fit.length<SHIPS[c.t].slots?"":"disabled"}>Einbauen</button></div>`).join("")+`</div>`},
+ skills(){return`<div class="card"><h2>Skills <span class="mute">(laufen auch im Flug)</span></h2>`+Object.keys(SKILLS).map(id=>{const l=S.skills[id],t=S.train&&S.train.id===id;return`<div class="row"><span><b>${SKILLS[id].n}</b> ${l}/5<br><span class="mute">${SKILLS[id].desc}</span>${t?`<div class="meter" style="width:150px"><i style="width:${100*(S.train.total-S.train.left)/S.train.total}%"></i></div><span class="mute">noch ${S.train.left} Ticks</span>`:""}</span>${l>=5?'<span class="mute">max</span>':`<button class="b alt" data-a="train" data-p="${id}" ${S.train?"disabled":""}>${skillTicks(l+1)} Ticks</button>`}</div>`}).join("")+`</div>`},
+ log(){return`<div class="card log"><h2>Protokoll</h2>${S.log.map(l=>`<div class="${l.c}">Tick ${l.t}: ${l.m}</div>`).join("")||'<div class="mute">Noch nichts passiert.</div>'}<div style="margin-top:10px"><button class="b alt" data-a="reset">Neu starten</button></div></div>`}
+};
+function preview(k,q){if(!q||!dock())return"";const r=quote(S.loc,k,q);return`${q} Stück ≈ ${fmt(r.net)} Cr (Ø ${r.avg.toFixed(1)} Cr, Preis danach ${(ITM[k].p*SYS[S.loc].mk*r.d2).toFixed(1)})`}
+
+let mult=1,timer;
+function head(){$("top").innerHTML=`<span><b style="color:var(--gold);font-size:17px">${fmt(S.cred)} Cr</b> <span class="mute">· Tick ${S.tick} · ${SYS[S.loc].n} · ${actText()}</span></span><span class="bar">${[[0,"Pause"],[1,"1x"],[5,"5x"],[20,"20x"]].map(([v,l])=>`<button class="b ${v===mult?"on":"alt"}" data-a="sp" data-p="${v}">${l}</button>`).join("")}</span>`}
+function navR(){let h="";const it=(m,c)=>`<button class="${c}" data-a="v" data-p="${m.id}"><span class="g">${m.g}</span><span class="t">${m.n}</span></button>`;
+ for(const m of NAV){if(m.sub){const o=m.sub.some(s=>s.id===S.view);h+=`<button class="${o?"open":""}" data-a="v" data-p="${m.sub[0].id}"><span class="g">${m.g}</span><span class="t">${m.n}</span></button>`;if(o)m.sub.forEach(s=>h+=it(s,"sub"+(s.id===S.view?" on":"")))}else h+=it(m,m.id===S.view?"on":"")}
+ $("nav").innerHTML=h}
+function render(){head();if(document.activeElement&&document.activeElement.tagName==="INPUT")return;navR();$("view").innerHTML=VIEWS[S.view]()}
+function setSpeed(m){mult=m;clearInterval(timer);if(m>0)timer=setInterval(()=>{tick();render();save()},TICK_MS/m);head()}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b||b.disabled)return;A[b.dataset.a](b.dataset.p)});
+document.addEventListener("input",e=>{const k=e.target.dataset.q;if(!k)return;S.qty[k]=e.target.value;const el=$("pv-"+k);if(el)el.textContent=preview(k,qtyOf(k))});
+
+S=Object.assign(fresh(),load()||{});
+S.skills=Object.assign({mining:0,nav:0,trade:0,refine:0},S.skills);
+if(!VIEWS[S.view])S.view="overview";
+catchUp();render();setSpeed(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{"schema":1,"entries":[
+{"id":"ship.pebble","name":"Pebble","category":"mining","class":"frigate","hull":"small","tier":1,
+ "description":"Einsteiger-Bergbaufregatte mit Ertragsbonus.",
+ "slots":{"high":3,"mid":3,"low":1,"rig":2},"hardpoints":{"turret":2,"launcher":0},
+ "fitting":{"powergrid":48,"cpu":270,"calibration":400},
+ "attributes":{"structure_hp":420,"armor_hp":380,"shield_hp":520,"capacitor":320,"cap_recharge_ticks":4,"speed":335,"warp_speed":3.0,"signature":40,"max_targets":3,"lock_range_km":15,"cargo":150,"ore_hold":5000,
+  "shield_res_em":0,"shield_res_th":0.2,"shield_res_kin":0.4,"shield_res_exp":0.5,"armor_res_em":0.5,"armor_res_th":0.35,"armor_res_kin":0.25,"armor_res_exp":0.1,"structure_res_em":0,"structure_res_th":0,"structure_res_kin":0,"structure_res_exp":0},
+ "bonuses":[{"skill":"skill.mining_frigate","stat":"mining_yield","op":"mul","perLevel":0.05}],
+ "roleBonuses":[{"stat":"mining_yield","op":"mul","value":2.0}],
+ "requires":{"skill.spaceship_command":1,"skill.mining_frigate":1},"price":0,"art":"ship.pebble"},
+{"id":"ship.dart","name":"Dart","category":"combat","class":"frigate","hull":"small","tier":1,
+ "description":"Schnelle Geschützfregatte für Stufe-1-Missionen.",
+ "slots":{"high":4,"mid":3,"low":3,"rig":3},"hardpoints":{"turret":3,"launcher":2},
+ "fitting":{"powergrid":37,"cpu":125,"calibration":400},
+ "attributes":{"structure_hp":336,"armor_hp":420,"shield_hp":380,"capacitor":350,"cap_recharge_ticks":5,"speed":365,"warp_speed":3.0,"signature":35,"max_targets":4,"lock_range_km":20,"cargo":130,"ore_hold":0},
+ "bonuses":[{"skill":"skill.dart_command","stat":"turret_damage","op":"mul","perLevel":0.05},{"skill":"skill.dart_command","stat":"weapon_range","op":"mul","perLevel":0.075}],
+ "roleBonuses":[],"requires":{"skill.spaceship_command":1,"skill.light_command":1},"price":45000,"art":"ship.dart"}
+]}

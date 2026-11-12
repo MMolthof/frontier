@@ -1,0 +1,5 @@
+{"schema":1,"entries":[
+{"id":"npc.rat_scout","name":"Piraten-Späher","class":"frigate","structure_hp":150,"armor_hp":120,"shield_hp":200,
+ "res":{"shield":{"em":0,"th":0.2,"kin":0.4,"exp":0.5},"armor":{"em":0.5,"th":0.35,"kin":0.25,"exp":0.1},"structure":{"em":0,"th":0,"kin":0,"exp":0}},
+ "dps":{"em":0,"th":6,"kin":4,"exp":0},"rangeKm":8,"bounty":900,"loot":[{"item":"item.scrap_metal","chance":0.3,"qty":[1,2]}]}
+]}

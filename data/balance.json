@@ -1,0 +1,107 @@
+{
+ "schema": 1,
+ "tickSeconds": 60,
+ "offlineMaxTicks": 10080,
+ "startIsk": 10000,
+ "startSkills": {
+  "skill.spaceship_command": 1,
+  "skill.mining": 1,
+  "skill.mining_frigate": 1
+ },
+ "startShip": "ship.pebble",
+ "startStation": "cel.aldara.p1.station",
+ "startSystem": "sys.aldara",
+ "attributes": {
+  "min": 17,
+  "max": 27,
+  "total": 99,
+  "start": {
+   "intelligence": 20,
+   "memory": 20,
+   "perception": 20,
+   "willpower": 20,
+   "charisma": 19
+  },
+  "remapCooldownTicks": 525600
+ },
+ "skills": {
+  "queueMax": 50,
+  "baseSp": 250,
+  "levelExponent": 2.5
+ },
+ "travel": {
+  "warpScale": 1.0,
+  "dockTicks": 1,
+  "undockProtectionTicks": 1,
+  "jumpTicks": 1,
+  "pirateChanceBase": 0.02
+ },
+ "market": {
+  "feeBase": 0.05,
+  "feePerTradeLevel": 0.01,
+  "recovery": 0.03,
+  "noise": 0.02,
+  "minDemand": 0.4,
+  "maxDemand": 1.6,
+  "historyLength": 60,
+  "sellShipFactor": 0.5
+ },
+ "refine": {
+  "stationBase": 0.5,
+  "tax": 0.05,
+  "perReprocessing": 0.03,
+  "perRefineryEfficiency": 0.02,
+  "perOreSkill": 0.02
+ },
+ "mining": {
+  "jetcanM3": 27500,
+  "jetcanLifeTicks": 120,
+  "critMultiplier": 2.0,
+  "approachTicks": 1
+ },
+ "missions": {
+  "levelHourlyRatio": [
+   1,
+   3,
+   7.5,
+   30
+  ],
+  "securityBonusPer01": 0.1,
+  "standingRequired": [
+   0,
+   1,
+   3,
+   5
+  ],
+  "baseIskLevel1": [
+   8000,
+   14000
+  ]
+ },
+ "liveTickMs": 3000,
+ "speeds": [
+  0,
+  1,
+  5,
+  20
+ ],
+ "startFitting": {
+  "high": [
+   "mod.miner_1",
+   "mod.miner_1",
+   null
+  ],
+  "mid": [
+   null,
+   null,
+   null
+  ],
+  "low": [
+   null
+  ],
+  "rig": [
+   null,
+   null
+  ]
+ }
+}

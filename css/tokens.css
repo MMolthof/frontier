@@ -1,0 +1,10 @@
+/* Basis-Tokens (Lead, Contract 1.1). A3 erweitert diese Datei zum vollständigen Design-System. */
+:root{
+  color-scheme:light;
+  --bg:#eef2f5;--panel:#ffffff;--ink:#16222b;--mute:#5d6d78;--line:#d3dce2;
+  --acc:#1f6f8b;--acc2:#e3f0f5;--gold:#a8700e;--red:#b23a3a;--ok:#2f7d4f;--map:#f3f7fa;
+  --slot-high:#b23a3a;--slot-mid:#1f6f8b;--slot-low:#a8700e;--slot-rig:#5d6d78;
+  --sec-high:#2f7d4f;--sec-mid:#a8700e;--sec-low:#b23a3a;
+  --radius-card:8px;--radius-btn:6px;--sp-1:6px;--sp-2:8px;--sp-3:12px;--sp-4:14px;
+  --font:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}

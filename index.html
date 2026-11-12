@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tick Frontier</title>
+<link rel="stylesheet" href="css/tokens.css">
+<style id="boot-fallback">
+/* Notbehelf, bis A3 die Shell liefert (A3 darf diesen Block löschen). Nur Tokens mit Rückfallwerten. */
+body{margin:0;background:var(--bg,#eef2f5);color:var(--ink,#16222b);font:15px "Segoe UI",system-ui,sans-serif}
+#app{max-width:760px;margin:0 auto;padding:14px}
+.boot-card{background:var(--panel,#fff);border:1px solid var(--line,#d3dce2);border-radius:8px;padding:14px;margin-bottom:12px}
+.boot-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.boot-mute{color:var(--mute,#5d6d78)}
+.boot-isk{color:var(--gold,#a8700e);font-weight:600;font-variant-numeric:tabular-nums}
+.boot-btn{min-height:40px;padding:0 14px;border:1px solid var(--line,#d3dce2);border-radius:6px;background:var(--acc2,#e3f0f5);color:var(--ink,#16222b);font:inherit;cursor:pointer}
+.boot-btn[aria-pressed="true"]{background:var(--acc,#1f6f8b);color:#fff}
+.boot-btn:focus-visible{outline:2px solid var(--acc,#1f6f8b);outline-offset:2px}
+.boot-log{margin:0;padding:0;list-style:none;font-size:13px}
+</style>
+</head>
+<body>
+<div id="app" aria-live="polite">Lade …</div>
+<script type="module">
+  const app = document.getElementById('app');
+  const banner = (err) => {
+    let el = document.getElementById('boot-error');
+    if (!el) { el = document.createElement('pre'); el.id = 'boot-error'; el.style.cssText = 'margin:14px;padding:12px;border:1px solid #b23a3a;border-radius:8px;background:#fff;color:#b23a3a;white-space:pre-wrap;font:13px monospace'; document.body.append(el); }
+    el.textContent += 'Fehler: ' + (err && err.message ? err.message : String(err)) + '\n';
+    console.error(err);
+  };
+  addEventListener('error', (e) => banner(e.error || e.message));
+  addEventListener('unhandledrejection', (e) => banner(e.reason));
+  import('./js/util/boot.js')
+    .then(({ boot }) => boot(app))
+    .catch((err) => { app.textContent = 'Start fehlgeschlagen.'; banner(err); });
+</script>
+</body>
+</html>

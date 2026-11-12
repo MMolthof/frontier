@@ -1,0 +1,15 @@
+{
+  "name": "tick-frontier",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "node tools/serve.mjs",
+    "test": "node --test",
+    "validate": "node tools/validate-data.mjs",
+    "check:ownership": "node tools/check-ownership.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

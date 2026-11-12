@@ -1,0 +1,1 @@
+{"schema":1,"contract":"1.0","files":["stats.json","balance.json","ships.json","modules.json","skills.json","ores.json","items.json","systems.json","missions.json","npcs.json","i18n/de.json"],"extGlob":"ext/*.json"}
