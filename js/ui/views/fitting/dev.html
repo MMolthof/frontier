@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fitting – Entwicklungsansicht (Mock)</title>
+<link rel="stylesheet" href="../../../../css/tokens.css">
+<style>
+/* Nur für diese Entwicklungsseite (nicht Teil der App). */
+body{margin:0;background:var(--bg,#eef2f5);color:var(--ink,#16222b);font:15px var(--font,system-ui,sans-serif)}
+#dev{background:var(--panel,#fff);border-bottom:1px solid var(--line,#d3dce2);padding:8px 14px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:13px}
+#dev label{display:inline-flex;gap:6px;align-items:center;min-height:40px}
+#dev button,#dev select{min-height:40px;font:inherit}
+#view{max-width:1400px;margin:0 auto;padding:14px}
+#err{color:var(--red,#b23a3a);padding:14px}
+</style>
+</head>
+<body>
+<div id="dev" role="region" aria-label="Mock-Steuerung">
+  <strong>MOCK</strong>
+  <label><input type="checkbox" id="docked" checked> angedockt</label>
+  <label>Skills <select id="skills"><option value="all">alle Stufe 5</option><option value="starter">nur Starter</option></select></label>
+  <label>Lager <select id="stock"><option value="most">zufällig (2/3)</option><option value="all">alles vorhanden</option><option value="none">leer</option></select></label>
+  <label><input type="checkbox" id="layout"> Selektor fitting/layout</label>
+  <button id="restart" type="button">Neu starten</button>
+  <span>Fenster auf 360 px verkleinern, um das Bottom-Sheet zu prüfen.</span>
+</div>
+<div id="view"></div>
+<div id="err" hidden></div>
+<script type="module">
+  import { createFetchReader, loadData } from '../../../core/data-loader.js';
+  import { createFittingMock } from '../../../../tests/mocks/fitting-game.js';
+  import { view } from './index.js';
+
+  const $ = (id) => document.getElementById(id);
+  try {
+    const { data } = await loadData(createFetchReader(new URL('../../../../', import.meta.url)), { onWarn: () => {} });
+    let unsubscribe = () => {};
+    const start = () => {
+      unsubscribe();
+      const game = createFittingMock({
+        data, now: Date.now, docked: $('docked').checked, skills: $('skills').value, stock: $('stock').value, withLayout: $('layout').checked
+      });
+      $('view').replaceChildren();
+      view.render($('view'), game);
+      unsubscribe = game.subscribe(() => view.update($('view'), game));
+      window.game = game; // für die Konsole: game.dispatch('mock/setSkill', { skillId: 'skill.gunnery', level: 3 })
+    };
+    $('restart').addEventListener('click', start);
+    start();
+    $('docked').addEventListener('change', () => window.game.dispatch('mock/setDocked', { docked: $('docked').checked }));
+  } catch (err) {
+    $('err').hidden = false;
+    $('err').textContent = `Start fehlgeschlagen: ${err.message} (Seite über „node tools/serve.mjs“ öffnen, nicht per file://)`;
+    console.error(err);
+  }
+</script>
+</body>
+</html>
