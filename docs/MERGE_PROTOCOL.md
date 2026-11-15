@@ -5,11 +5,11 @@
 |---|---|---|---|
 | 0 | Lead | – | Master Plan, Verträge, Beispieldaten (fertig) |
 | 1 | A1 Core, A2 Daten, A3 Design/Shell | Kit liegt im Repo | Fundament: Schleife/State, Inhalte/Schemas, UI-Gerüst. Keine gegenseitige Blockade, nur gegen Verträge |
-| 2 | A4 Fitting, A5 Skills, A6 Navigation, A7 Mining, A8 Account/Markt | A1-Zwischenstand (Skeleton + Harness) oder Mocks | Fachsysteme, parallel entwickelbar dank fester API |
-| 3 | A9 Kampf/Missionen, A10 Integration/QA | A4, A5, A6, A8 gemerged | Kampf braucht Fitting-Stats, Skills, Docking, Lager; QA braucht alles |
+| 2 | A4 Fitting-Engine, A5 Fitting-GUI (nach A3), A11 Skills, A6 Navigation, A7 Mining, A8 Account/Markt | A1-Zwischenstand (Skeleton + Harness) oder Mocks | Fachsysteme, parallel entwickelbar dank fester API |
+| 3 | A9 Kampf/Missionen, A10 Integration/QA | A4, A11, A6, A8 gemerged | Kampf braucht Fitting-Stats, Skills, Docking, Lager; QA braucht alles |
 
 ## 2. Merge-Reihenfolge
-A1 → A2 → A3 → A8 → A5 → A4 → A6 → A7 → A9 → A10.
+A1 → A2 → A3 → A8 → A11 → A4 → A5 → A6 → A7 → A9 → A10.
 Begründung: erst Fundament und Daten, dann Besitz/Lager/Skills (alle brauchen sie), dann Fitting, Navigation, Mining, zuletzt Kampf und QA.
 
 ## 3. Ablauf je Branch
@@ -26,8 +26,9 @@ Begründung: erst Fundament und Daten, dann Besitz/Lager/Skills (alle brauchen s
 | `index.html`, `js/core/**`, `js/util/**`, `js/types.js`, `tools/serve.mjs` | A1 |
 | `data/*.json` (Basis), `data/schema/**`, `data/i18n/**`, `tools/validate-data.mjs` | A2 |
 | `css/**` (außer `css/views/**`), `js/ui/shell/**`, `js/ui/components/**`, `assets/**` | A3 |
-| `js/systems/fitting/**`, `js/ui/views/fitting/**` | A4 |
-| `js/systems/skills/**`, `js/ui/views/skills/**` | A5 |
+| `js/systems/fitting/**`, `tests/fitting.*` (+ Wert-Korrekturen `data/ships.json`, `data/modules.json`, dokumentiert) | A4 |
+| `js/ui/views/fitting/**`, `css/views/fitting.css`, `tests/fitting-ui.*` (+ Anhängen `ui.fitting.*` an `data/i18n/de.json`) | A5 |
+| `js/systems/skills/**`, `js/ui/views/skills/**` | A11 |
 | `js/systems/travel/**`, `js/ui/views/system/**` | A6 |
 | `js/systems/mining/**`, `js/systems/refine/**`, `js/ui/views/mining/**` | A7 |
 | `js/systems/{account,inventory,market,ships}/**`, `js/ui/views/{hangar,market}/**` | A8 |

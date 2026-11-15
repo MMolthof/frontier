@@ -1,6 +1,6 @@
 # Tick Frontier – Master Plan
 
-**Contract-Version:** 1.1 · **Stand:** 10.11.2026 · **Lead-KI:** Claude (einzige Instanz, die diese Datei ändert und Branches merged)
+**Contract-Version:** 1.2 · **Stand:** 12.11.2026 · **Lead-KI:** Claude (einzige Instanz, die diese Datei ändert und Branches merged)
 
 Dieses Dokument ist die **verbindliche Spezifikation** für alle Agenten. Bei Widerspruch zwischen Prompt und Master Plan gilt der Master Plan. Änderungswünsche gehen nur über `docs/CHANGE_REQUESTS.md` (Vorlage: `docs/templates/CHANGE_REQUEST_TEMPLATE.md`).
 
@@ -168,6 +168,44 @@ Neue Actions/Events nur über Change Request.
 5. **data/ext:** Browser können Verzeichnisse nicht listen. `tools/serve.mjs` erzeugt `data/ext/index.json` dynamisch; auf GitHub Pages bleibt ext leer. Agenten testen lokal mit `node tools/serve.mjs`, der Lead faltet ext vor jedem Release in die Basisdateien.
 6. **Zufall und Zeit:** `state.rngState` hält den Zufallsstrom über Save/Load deterministisch. `ctx.now` ist nur die Echtzeituhr (Infrastruktur); Systeme speichern Zeitpunkte als Ticks (`expiresAt`, `respawnAt`).
 
+### 3.8 Daten- und Regelkonventionen (Change Request A2-1, vom Lead angenommen, Contract 1.2)
+1. **Zeit:** „Stunde“ in Balance-Rechnungen = **60 Ticks** (`balance.economy.ticksPerHour`). `mod.miner_1` hat `cycleTicks 5`, `yieldM3 2.3` (Ertragsziel Starter ≈ 15.000 ISK/h); Tests mit Goldwerten richten sich nach den Daten, nicht nach `data/examples`.
+2. **Mul-Stats** (`unit: multiplier`) haben die implizite Basis 1,0. `powergrid_bonus`/`cpu_bonus` skalieren `fitting.powergrid`/`fitting.cpu`.
+3. **Stacking:** Sowohl `mul`- als auch `add`-Effekte mit gleicher `stackingGroup` erhalten die Penalty aus 5.2 (absteigend nach Stärke sortiert). Resistenz-Module nutzen `add` (Prozentpunkte auf `*_res_*`); die **Gesamtresistenz wird auf ≤ 0,95 geklemmt**.
+4. **Hardpoints:** `hardpoints.turret` und `.launcher` sind je Typ Obergrenzen (je ≤ High-Slots); ihre Summe darf die High-Slots übersteigen (Hybrid-Rümpfe).
+5. **Waffen ohne Munition (v1):** `activation.damage` gilt je Zyklus, Munitions-Items sind Handelsware, das Modulfeld `ammo` bleibt ungenutzt. Raketenwerfer-Gruppen je Größe (`light_/heavy_missile_launcher`, `torpedo_launcher`); Module existieren in small/medium/large (Größe = Rumpfgröße).
+6. **Erz-Aufbereitung:** `ore.refine.skill` nennt den erzspezifischen Skill, dessen Effekt `refine_efficiency` mit `appliesTo.oreSkill` wirkt; Ausbeute-Formel 5.5 unverändert. Seltene Erze haben `requires` (Abbau nur mit Skill).
+7. **Neue Stats:** `cpu_penalty_mining_upgrade`, `scan_range_km`, `standing_gain` (in `data/stats.json`).
+8. **Standing:** Missionen verlangen Standing gegenüber `agentCorp`; für die Prüfung zählt das **Maximum** aus dem Standing gegenüber dem Agenten-Konzern und dessen Freunden; v1 vereinfacht: Maximum aller Konzernstandings des Piloten.
+9. **Industrie/Blueprints:** Datenformat-Entwurf `items[].blueprint = { inputs: {itemId: qty}, output: {itemId: qty}, ticks }`. Zuständigkeit: eigener Agent in Welle 3 (noch nicht beauftragt); `industry/start` bleibt bis dahin ungenutzt.
+10. **Balance-Zusatz:** `balance.economy` und `balance.missions.hourlyIskLevel1` dokumentieren das Referenzmodell; kein Code muss sie lesen.
+
+### 3.9 Fitting-Schnittstelle (Agent 4 liefert, Agent 5 nutzt)
+**Slot-Adressierung:** `{ uid, slot: 'high'|'mid'|'low'|'rig', index }`, `ship.fitting[slot][index]` = Modul-ID oder `null`. Module liegen im Stationslager (`state.assets.stations[stationId].items`).
+
+**Actions:** `fitting/equip {uid, slot, index, moduleId}`, `fitting/unequip {uid, slot, index, confirm?}`. Ergebnis `{ ok, error?, message?, needsConfirm? }`; Rig-Ausbau ohne `confirm:true` liefert `{ ok:false, error:'fit.rig_confirm', needsConfirm:true }`. Event `fitting/changed {uid}`.
+
+**Selektoren (alle rein lesend):**
+- `fitting/ships {}` → `[{ uid, typeId, name, stationId, active, valid }]` (Schiffe im Hangar der aktuellen Station; leer, wenn nicht docked).
+- `fitting/stats {uid}` → `stats` (Form unten).
+- `fitting/preview {uid, slot, index, moduleId|null}` → `{ check, stats, delta }`; `delta` flach nach Pfad, z. B. `'fitting.pg.used'`, `'defense.ehp'`, `'offense.dps.total'`, `'mining.m3PerTick'`, `'capacitor.usePerTick'`, `'nav.speed'`. Ändert den State nie.
+- `fitting/canFit {uid, slot, index, moduleId}` → `{ ok, error?, message?, need?, have? }`.
+- `fitting/moduleList {uid, slot, group?, search?}` → `[{ moduleId, name, group, category, size, qtyInStation, check, fitting:{powergrid,cpu,calibration} }]`, auch nicht ausrüstbare Module mit `check`-Grund, sortiert nach Gruppe, Name.
+
+**Form von `stats`:**
+```js
+{ valid, errors: [{ code, slot, index, moduleId, message, need, have }],
+  fitting: { pg: {used,max}, cpu: {used,max}, calibration: {used,max} },
+  slots: { high: {total,used,hardpoints:{turret:{used,max},launcher:{used,max}}}, mid:{total,used}, low:{total,used}, rig:{total,used} },
+  defense: { shield:{hp,res:{em,th,kin,exp}}, armor:{hp,res:{…}}, structure:{hp,res:{…}}, ehp },
+  offense: { dps:{total,em,th,kin,exp}, rangeKm, weapons:[{moduleId,dps}] },
+  mining:  { lasers, m3PerTick, oreHold, cargo },
+  capacitor: { max, rechargePerTick, usePerTick, stable, stableForTicks },
+  nav: { speed, warpSpeed, warpTicksPerAu, signature, maxTargets, lockRangeKm },
+  repair: { shieldPerTick, armorPerTick } }
+```
+Fehlercodes: `fit.not_docked`, `fit.slot_type`, `fit.slot_occupied`, `fit.size`, `fit.hardpoints`, `fit.powergrid`, `fit.cpu`, `fit.calibration`, `fit.skill`, `fit.no_module`, `fit.rig_confirm`, `ship.skill`; Texte in `data/i18n/de.json` unter `error.<code>`.
+
 ---
 
 ## 4. Datenverträge (JSON)
@@ -206,7 +244,7 @@ Mission: `id, level (1–4), title, summary, agentCorp, requires { shipCategory:
 NPC: `id, name, class, structure_hp, armor_hp, shield_hp, res{…}, dps{em,th,kin,exp}, rangeKm, bounty, loot[]`.
 
 ### 4.8 Balance (`balance.json`)
-Alle Tuning-Zahlen (Tick-Länge, Markt-Gebühr, Respawn, Missions-Skalierung, Startskills, Startgeld). **Keine Zahlen in Code**, die hierhin gehören. Optionale Schlüssel: `liveTickMs`, `speeds` (erlaubte Zeitraffer, Standard `[0,1,5,20]`), `startFitting` (`{high:[…],mid:[…],low:[…],rig:[…]}` für das Starterschiff, `null` = leer).
+Alle Tuning-Zahlen (Tick-Länge, Markt-Gebühr, Respawn, Missions-Skalierung, Startskills, Startgeld). **Keine Zahlen in Code**, die hierhin gehören. Optionale Schlüssel: `liveTickMs`, `speeds` (erlaubte Zeitraffer, Standard `[0,1,5,20]`), `startItems` (`{itemId: Menge}`, landet im Lager der Startstation), `startFitting` (`{high:[…],mid:[…],low:[…],rig:[…]}` für das Starterschiff, `null` = leer).
 
 ---
 

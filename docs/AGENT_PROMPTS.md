@@ -1,6 +1,6 @@
 # Tick Frontier – Agenten-Prompts
 
-**So benutzt du das:** Jeder Agent bekommt **(1) den Kontext-Block (8.0) + (2) seinen Auftrag (A1–A10)** und Lesezugriff auf `docs/MASTER_PLAN.md`, `data/` und `prototype/eve-tick-v2.html`. Wellen: **Welle 1** A1, A2, A3 (parallel) → **Welle 2** A4–A8 (parallel) → **Welle 3** A9, A10.
+**So benutzt du das:** Jeder Agent bekommt **(1) den Kontext-Block (8.0) + (2) seinen Auftrag (A1–A11)** und Lesezugriff auf `docs/MASTER_PLAN.md`, `data/` und `prototype/eve-tick-v2.html`. Wellen: **Welle 1** A1, A2, A3 (parallel) → **Welle 2** A4, A5 (nach A3), A6, A7, A8, A11 (parallel) → **Welle 3** A9, A10.
 
 ---
 
@@ -145,39 +145,71 @@ Verboten: Spiellogik, Berechnungen von Stats, Datenänderungen.
 
 ---
 
-## Agent 4: Fitting-Engine & Fitting-Fenster *(Welle 2)*
+## Agent 4: Fitting-Engine (Logik ohne Oberfläche) *(Welle 2)*
 
-**Eigentum:** `js/systems/fitting/**`, `js/ui/views/fitting/**`, `css/views/fitting.css`, `tests/fitting.*`.
+**Eigentum:** `js/systems/fitting/**`, `tests/fitting.*`; zusätzlich Wert-Korrekturen in `data/ships.json` und `data/modules.json` (nur belegte Datenfehler, jede Änderung im Handoff aufgelistet).
 
 ```
-AUFTRAG A4 – Fitting
-Setze das EVE-artige Fitting um. Spezifikation: MASTER_PLAN 2.1, 3.5, 4.2, 4.3, 5.1, 5.2, 6.3.
+AUFTRAG A4 – Fitting-Engine
+Spezifikation: MASTER_PLAN 2.1, 3.5–3.9, 4.2, 4.3, 5.1, 5.2. Die Oberfläche baut Agent 5 auf deiner Schnittstelle (3.9) – halte sie exakt ein.
 
 Liefere:
-1. js/systems/fitting/stats.js: reine Funktion calcShipStats(ship, pilot, data) exakt nach Pipeline 5.2 (Rumpfboni mit
-   perLevel × Skill-Stufe, Rollenboni, add→set→mul, appliesTo-Filter, Stacking-Penalty exp(-(i/2.67)^2)), Ausgabe:
-   fitting{pgUsed,pgMax,cpuUsed,cpuMax,calUsed,calMax}, hp, resists, offense{dps,byType}, mining{m3PerTick},
-   capacitor{max,rechargePerTick,usePerTick,stable}, nav{speed,warpSpeed,warpTicksPerAu}, errors[].
-2. js/systems/fitting/index.js: system "fitting" mit Actions fitting/equip, fitting/unequip (Validierung nach 5.1, Fehlercodes
-   fit.*, Rig-Ausbau zerstört den Rig mit Bestätigungsflag), Events fitting/changed, Selektoren fitting/stats, fitting/canFit
-   (liefert Grund-Text für UI), fitting/moduleList (nach Slot/Gruppe gefiltert, mit Ausrüstbarkeit).
-3. js/ui/views/fitting/index.js: Fitting-Fenster nach 6.3 (slot-ring aus A3, Statistik-Panel, Modul-Browser mit Tabs/Filter/Suche,
-   Δ-Vorschau, ungültige Module grau mit Grund, nur docked bearbeitbar).
-4. Tests: Stat-Pipeline mit Goldwerten (inkl. Stacking-Penalty), jede Fehlerklasse, Slot-Typ-Trennung (High ≠ Mid ≠ Low ≠ Rig).
+1. js/systems/fitting/stats.js: calcShipStats(ship, pilot, data) rein und DOM-frei nach Pipeline 5.2 und den Regeln aus 3.8 (add UND mul mit stackingGroup
+   erhalten Stacking-Penalty; Resistenz = Basis + add-Summe, Gesamtwert ≤ 0,95; Mul-Stats Basis 1,0; powergrid_bonus/cpu_bonus skalieren PG/CPU; Hardpoints je Typ
+   Obergrenze). Ausgabeform exakt wie MASTER_PLAN 3.9.
+2. js/systems/fitting/validate.js: Validierung nach 5.1 mit Fehlercodes aus 3.9 (jeweils mit message aus data/i18n/de.json "error.<code>" und need/have).
+3. js/systems/fitting/index.js: system "fitting" mit Actions fitting/equip, fitting/unequip (Modul aus dem Stationslager state.assets.stations[stationId].items nehmen,
+   beim Ausbau zurücklegen; Rig-Ausbau zerstört den Rig, nur mit confirm:true), Event fitting/changed, Selektoren fitting/ships, fitting/stats, fitting/preview,
+   fitting/canFit, fitting/moduleList nach 3.9.
+4. js/systems/fitting/access.js: EINE Datei, die Skill-Stufen, Docking-Status und Stationslager liest. Bevorzugt ctx.select('skills/level') und ctx.select('travel/isDocked'),
+   wenn vorhanden (game.hasSelector), sonst direkter Lesezugriff auf state.pilot.* – so läuft dein System heute und später ohne Umbau.
+5. tests/fitting.*.test.mjs: Goldwerte der Stat-Pipeline (inkl. Stacking-Penalty 1 / 0,87 / 0,57 / 0,28 / 0,11 für add UND mul), jede Fehlerklasse, Slot-Typ-Trennung
+   (High ≠ Mid ≠ Low ≠ Rig), Startfitting des Starterschiffs, Resist-Klemme 0,95, Rig-Zerstörung, Lagerbilanz (Modul nie dupliziert/verloren), preview ändert State nicht,
+   plus ein plausibler Referenz-Fit für jedes der 14 Schiffe.
+6. Fehlersuche: Prüfe die A2-Daten mit deinen Tests (PG/CPU/Calibration-Bilanzen, Slot-/Hardpoint-Summen, Skill-Erreichbarkeit, Effekte mit unbekannten Stats). Offensichtliche
+   Datenfehler korrigierst du direkt in data/ships.json bzw. data/modules.json (nur Werte, keine neuen/gelöschten IDs, danach `node tools/validate-data.mjs` grün) und
+   listest jede Änderung mit Begründung im Handoff unter "Daten-Korrekturen". Alles andere meldest du als Change Request.
 
-Akzeptanz: kein Modul lässt sich in falschen Slot-Typ einbauen; PG/CPU/Calibration-Überschreitung wird verhindert und erklärt;
-Skill-Anforderung blockiert Einbau; calcShipStats ist rein und DOM-frei und wird von A5/A7/A9 importiert.
-Verboten: Skill-Training, Kampfablauf, Mining-Zyklen (nur ihre Stat-Werte berechnen).
+Akzeptanz: kein Modul lässt sich in einen falschen Slot-Typ einbauen; PG/CPU/Calibration-Überschreitung wird verhindert und mit need/have erklärt; Skill-Anforderung blockiert
+Einbau; calcShipStats ist rein und deterministisch (wird von A7/A9/A10 importiert); fitting/preview verändert den State nie; `node --test` und `node tools/validate-data.mjs` grün.
+Verboten: Oberfläche/DOM/CSS (Agent 5), Skill-Training (A11), Kampfablauf (A9), Mining-Zyklen (A7).
 ```
 
 ---
 
-## Agent 5: Skill-System & Skill-Oberfläche *(Welle 2)*
+## Agent 5: Fitting-Oberfläche (GUI) *(Welle 2, nach A3)*
+
+**Eigentum:** `js/ui/views/fitting/**`, `css/views/fitting.css`, `tests/fitting-ui.*`; zusätzlich Anhängen von Schlüsseln mit Präfix `ui.fitting.` an `data/i18n/de.json` (nur anhängen).
+
+```
+AUFTRAG A5 – Fitting-Fenster
+Spezifikation: MASTER_PLAN 3.5, 3.9, 6.1, 6.3, 6.7. Du baust ausschließlich die Ansicht. Berechnung und Regeln liefert Agent 4 über die Schnittstelle 3.9; Komponenten (slot-ring,
+stat-bar, resist-matrix, tabs, modal/confirm, toast, tooltip, table) und das Shell-Gerüst kommen von Agent 3 (docs/UI_GUIDE.md, js/ui/components/, js/ui/shell/).
+
+Liefere:
+1. js/ui/views/fitting/index.js: view {id:'fitting', title, group:'fitting', order:30, enabled(game), render, update} nach 6.3: Schiffssilhouette mit Slot-Kreisring (High oben, Mid rechts, Low links,
+   Rigs unten, Farben je Slot-Typ, leere Slots gestrichelt, Hardpoint-Zähler), rechts Statistik-Panel (PG/CPU/Calibration-Balken rot bei Überschreitung, Dreifach-HP, Resist-Matrix 4×3, DPS,
+   Mining m³/Tick, Cap, Speed/Warp), Modul-Browser mit Tabs je Slot-Typ, Gruppenfilter und Suche, nicht ausrüstbare Module sichtbar und grau mit Grund (Text aus check.message).
+2. Interaktion: Klick/Enter auf Slot öffnet den Browser für diesen Typ; Doppelklick/Drag/Button legt ein; Klick auf belegten Slot bietet Ausbauen; Rig-Ausbau nur nach Bestätigungsdialog (confirm:true);
+   Δ-Vorschau (Hover/Fokus auf Modul) aus fitting/preview, nur Differenzen anzeigen; Schiffsumschalter über fitting/ships; Hinweisbanner mit Begründung, wenn nicht docked; Toast bei Erfolg/Fehler.
+3. js/ui/views/fitting/model.js: reine, DOM-freie Hilfsfunktionen (Filter/Sortierung, Δ-Formatierung, Slot-Anordnung auf dem Ring, Balken-Zustände) mit Tests tests/fitting-ui.*.test.mjs.
+4. css/views/fitting.css (nur Tokens aus css/tokens.css, Präfix .c-fit-…), responsiv bis 360 px: Ring und Statistik untereinander, Browser als Bottom-Sheet; Tastatur- und Screenreader-Bedienung (Pfeiltasten im Ring).
+5. Entwicklung ohne Agent 4: tests/mocks/fitting-game.js (Mock mit den Selektoren/Actions aus 3.9 und Beispieldaten) und js/ui/views/fitting/dev.html (mountet nur deine View mit dem Mock).
+6. Texte: Schlüssel `ui.fitting.*` an data/i18n/de.json anhängen, Zugriff per game.t, keine festen Texte im Code.
+
+Akzeptanz: Jede Aktion läuft ausschließlich über game.dispatch, Werte nur aus Selektoren (keine eigene Stat-Berechnung); Ring, Panel und Browser funktionieren mit dem Mock und – sobald A4 gemerged ist – ohne Änderung mit
+dem echten System; UI-Tests (model.js) grün; 360 px bis Desktop nutzbar; Kontrast ≥ 4,5:1.
+Verboten: Änderungen an js/systems/**, js/core/**, js/ui/components/** und js/ui/shell/** (Wünsche als Change Request an Agent 3 bzw. den Lead).
+```
+
+---
+
+## Agent 11: Skill-System & Skill-Oberfläche *(Welle 2)*
 
 **Eigentum:** `js/systems/skills/**`, `js/ui/views/skills/**`, `css/views/skills.css`, `tests/skills.*`.
 
 ```
-AUFTRAG A5 – Skills nach EVE-Vorbild
+AUFTRAG A11 – Skills nach EVE-Vorbild
 Setze Skill-Training, Voraussetzungen und Effizienzboni um. Spezifikation: MASTER_PLAN 2.2, 4.4, 5.3, 6.5 (Skills).
 
 Liefere:
@@ -298,7 +330,7 @@ Liefere:
 2. js/systems/combat/index.js: Rundenlogik je Tick nach 5.6 (Schadenstypen EM/Th/Kin/Exp, Schild → Panzerung → Struktur mit Resist, Cap-Verbrauch/Regeneration,
    NPC-Aggro und Zielwahl, Wellen), Actions combat/retreat, combat/priority, Events combat/round, combat/npcKilled, combat/playerDestroyed; Verlust von Schiff+Fitting,
    Starterschiff als Ersatz, Stations-Lager bleibt sicher; Reaktion auf space/pirateSpawned (Zufallsbegegnung außerhalb von Missionen).
-   Schiffswerte ausschließlich über calcShipStats (A4), Skill-Effekte über skills/effects (A5).
+   Schiffswerte ausschließlich über calcShipStats (A4), Skill-Effekte über skills/effects (A11).
 3. UI: js/ui/views/missions/index.js (Agentenkarten Stufe 1–4, Anforderungsampel, Belohnungsspanne, aktive Mission mit Wellenfortschritt), js/ui/views/combat/index.js
    (Kampfprotokoll live, HP-Balken Schild/Panzer/Struktur, NPC-Liste mit Priorität, Retreat-Button).
 4. Tests: Schadensanwendung mit Resists, Cap-Stabilität, Level-/Schiffsprüfung, Belohnungsskalierung, Schiffsverlust, Mission abgeschlossen/gescheitert.

@@ -80,7 +80,8 @@ export function createInitialState(data, seed = 12345, options = {}) {
         oreHold: {},
         damage: { shield: attrs.shield_hp ?? 0, armor: attrs.armor_hp ?? 0, structure: attrs.structure_hp ?? 0 }
       }],
-      stations: b.startStation ? { [b.startStation]: { items: {} } } : {}
+      // Optional: balance.startItems = { 'mod.xyz': 2 } landet im Lager der Startstation.
+      stations: b.startStation ? { [b.startStation]: { items: { ...(b.startItems ?? {}) } } } : {}
     },
     world: { fields: {}, cans: [], markets: {} },
     mining: { sessions: [] },

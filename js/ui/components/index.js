@@ -1,0 +1,21 @@
+// Sammelexport der UI-Komponenten (Vertrag 5.2).
+export { icon, iconTree, ICON_NAMES } from './icon.js';
+export { shipTree, shipSvgString, SHIP_CLASSES } from './ship-svg.js';
+export { shipArt } from './ship-art.js';
+export { oreIcon, oreTree, oreColorIndex } from './ore-icon.js';
+export { svgToString, svgToDom, hashString } from './svg-tree.js';
+export { button, updateButton } from './button.js';
+export { card } from './card.js';
+export { meter, updateMeter } from './meter.js';
+export { statBar, updateStatBar } from './stat-bar.js';
+export { table, updateTable } from './table.js';
+export { tabs, updateTabs } from './tabs.js';
+export { openModal, confirm, confirmDialog } from './modal.js';
+export { createToastRegion } from './toast.js';
+export { tooltip, updateTooltip } from './tooltip.js';
+export { slotRing, updateSlotRing, slotRingGeometry, slotRingLayout } from './slot-ring.js';
+export { resistMatrix, updateResistMatrix } from './resist-matrix.js';
+export { sparkline, updateSparkline, sparklinePoints } from './sparkline.js';
+export { progressTimeline, updateProgressTimeline } from './progress-timeline.js';
+export { emptyState } from './empty-state.js';
+export { uiText, UI_STRINGS } from './ui-strings.js';
