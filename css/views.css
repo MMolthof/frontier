@@ -1,0 +1,33 @@
+/* Gemeinsame Stile der Fach-Ansichten (Iteration 1): Sonnensystem, Bergbau, Hangar, Markt, Industrie. */
+.v-msg{color:var(--red);font-weight:600}
+.v-badge{display:inline-block;padding:1px 8px;border-radius:10px;background:var(--acc2);color:var(--acc);font-size:12px;font-weight:600}
+.v-list{display:flex;flex-direction:column;gap:6px}
+.v-ship{display:flex;gap:var(--sp-3);align-items:center}
+.v-facts{display:flex;flex-direction:column;gap:2px;font-size:14px}
+.v-trades{display:flex;flex-direction:column}
+.v-trade{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(90px,.6fr) minmax(200px,1.2fr);gap:6px var(--sp-3);align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.v-trade:first-child{border-top:0}
+.v-trade__name{display:flex;flex-direction:column;gap:3px}
+.v-trade > .v-preview,.v-trade > .u-mute{grid-column:1/-1}
+.v-hist{display:grid;grid-template-columns:minmax(150px,.8fr) 2fr;gap:var(--sp-3);align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.v-hist:first-child{border-top:0}
+.v-qty{width:96px;min-height:var(--tap);padding:4px 8px;border:1px solid var(--line);border-radius:var(--radius-btn);font:inherit;background:var(--panel);color:var(--ink)}
+.v-orbit{display:block;width:100%;max-height:540px;background:var(--map);border-radius:var(--radius-btn)}
+.v-orbit__ring{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:4 4}
+.v-orbit__route{stroke:var(--gold);stroke-width:2;stroke-dasharray:6 4}
+.v-orbit__star{fill:var(--gold)}
+.v-orbit__planet{fill:var(--acc)}
+.v-orbit__station{fill:var(--ink)}
+.v-orbit__gate{fill:var(--slot-rig)}
+.v-orbit__belt circle{fill:var(--mute)}
+.v-orbit__ship{fill:var(--red);stroke:var(--panel);stroke-width:2}
+.v-orbit__label{font-size:11px;fill:var(--ink)}
+.v-orbit__node{cursor:pointer}
+.v-orbit__hit{fill:transparent}
+.v-orbit__node:hover .v-orbit__hit,.v-orbit__node--sel .v-orbit__hit{fill:var(--acc2)}
+.v-orbit__node:focus-visible{outline:var(--focus-ring)}
+.v-star--high{fill:var(--sec-high)}
+.v-star--mid{fill:var(--sec-mid)}
+.v-star--low{fill:var(--sec-low)}
+.v-star__here{fill:none;stroke:var(--acc);stroke-width:2}
+@media (max-width:760px){.v-trade{grid-template-columns:1fr}.v-hist{grid-template-columns:1fr}}
