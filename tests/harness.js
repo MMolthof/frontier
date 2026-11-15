@@ -39,7 +39,7 @@ export function createTestData({ extra = [], useExamples = true } = {}) {
   }
   // Tests laufen mit den Vertragswerten (1 Tick = tickSeconds, leeres Starterschiff), unabhängig von Dev-Overrides.
   if (files['balance.json']) {
-    const { liveTickMs, startFitting, ...contractBalance } = files['balance.json'];
+    const { liveTickMs, startFitting, startItems, speeds, ...contractBalance } = files['balance.json'];
     files['balance.json'] = contractBalance;
   }
   const ext = extra.map((json, i) => ({ path: `ext/test-${i}.json`, json: { schema: 1, ...json } }));

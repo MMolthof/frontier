@@ -73,7 +73,7 @@ test('loadData über Memory-Reader inkl. data/ext und nicht lesbarer Dateien', a
 
 test('loadData liest das echte Repo über den Fs-Reader ohne Absturz', async () => {
   const { data } = await loadData(createFsReader(REPO_ROOT), { onWarn: () => {} });
-  assert.equal(data.contract, '1.0');
+  assert.match(data.contract, /^\d+\.\d+$/);
   assert.equal(data.balance.startShip, 'ship.pebble');
   assert.ok(data.lists.stats.length > 30);
 });

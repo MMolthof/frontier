@@ -6,3 +6,8 @@ Dateien: `docs/MASTER_PLAN.md` (verbindlich), `docs/AGENT_PROMPTS.md`, `docs/MER
 
 ## GitHub Pages
 Pages mit Quelle `main` / Root. Die Datei `.nojekyll` verhindert, dass Jekyll die Seite verarbeitet (sonst können Build-Fehler die Auslieferung blockieren). Startfehler erscheinen als rote Box unter der Seite.
+
+## Spielen
+- Lokal: `node tools/serve.mjs`, dann die ausgegebene Adresse öffnen.
+- Online: GitHub Pages (Quelle `main`, Root).
+- Stand und Roadmap: `docs/ITERATIONS.md` (Iteration 1 = Bergbau-Schleife, spielbar).

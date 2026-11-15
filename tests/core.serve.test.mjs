@@ -1,6 +1,6 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync, rmSync } from 'node:fs';
+import { writeFileSync, rmSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createAppServer } from '../tools/serve.mjs';
 import { createFetchReader, loadData } from '../js/core/data-loader.js';
@@ -11,6 +11,7 @@ let server, base;
 const extFile = join(REPO_ROOT, 'data', 'ext', 'a1-servetest.json');
 
 before(async () => {
+  mkdirSync(join(REPO_ROOT, 'data', 'ext'), { recursive: true });
   writeFileSync(extFile, JSON.stringify({ schema: 1, entries: [{ id: 'item.servetest', name: 'Test', volumeM3: 1, basePrice: 1, kind: 'misc' }] }));
   server = createAppServer();
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -38,5 +39,5 @@ test('Fetch-Reader + Server: loadData inkl. dynamischem data/ext/index.json und 
   assert.equal(data.balance.startShip, 'ship.pebble');
   assert.ok(data.items['item.servetest'], 'ext-Datei wurde über /data/ext/index.json gefunden');
   const reg = await loadRegistry(reader, { onWarn: () => {} });
-  assert.deepEqual(reg.systems.map((s) => s.id), ['core-demo']);
+  assert.ok(reg.systems.some((s) => s.id === 'travel'), 'echte Registry über den Server geladen');
 });

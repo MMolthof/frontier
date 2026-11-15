@@ -44,5 +44,5 @@ test('fehlende registry.json → leere Registry mit Warnung, kein Absturz', asyn
 
 test('echte js/registry.json lädt mit dem Standard-Importer (core-demo)', async () => {
   const res = await loadRegistry(createFsReader(REPO_ROOT), { onWarn: () => {} });
-  assert.deepEqual(res.systems.map((s) => s.id), ['core-demo']);
+  for (const id of ['travel', 'mining', 'inventory', 'market', 'refine', 'fitting']) assert.ok(res.systems.some((s) => s.id === id), id);
 });

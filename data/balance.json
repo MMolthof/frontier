@@ -84,7 +84,8 @@
   0,
   1,
   5,
-  20
+  20,
+  60
  ],
  "startFitting": {
   "high": [
@@ -126,5 +127,12 @@
    330,
    880
   ]
+ },
+ "startItems": {
+  "mod.mining_upgrade_1": 1,
+  "mod.shield_extender_s": 1,
+  "mod.armor_plate_s": 1,
+  "mod.autocannon_s": 1,
+  "mod.rig_cargo_s": 1
  }
 }

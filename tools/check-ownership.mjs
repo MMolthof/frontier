@@ -4,12 +4,13 @@ const OWN = {
   a1: ['index.html','js/core/**','js/util/**','js/types.js','tools/serve.mjs','tests/core.*','tests/harness.js'],
   a2: ['data/*.json','data/schema/**','data/i18n/**','data/examples/**','tools/validate-data.mjs','tests/data.*','docs/DATA_GUIDE.md'],
   a3: ['index.html','css/*.css','js/ui/shell/**','js/ui/components/**','js/ui/views/overview/**','assets/**','tests/ui-*','docs/UI_GUIDE.md'],
-  a4: ['js/systems/fitting/**','js/ui/views/fitting/**','css/views/fitting.css','tests/fitting.*'],
-  a5: ['js/systems/skills/**','js/ui/views/skills/**','css/views/skills.css','tests/skills.*'],
+  a4: ['js/systems/fitting/**','tests/fitting.*','data/ships.json','data/modules.json'],
+  a5: ['js/ui/views/fitting/**','css/views/fitting.css','tests/fitting-ui.*','data/i18n/de.json'],
   a6: ['js/systems/travel/**','js/ui/views/system/**','css/views/system.css','tests/travel.*'],
   a7: ['js/systems/mining/**','js/systems/refine/**','js/ui/views/mining/**','css/views/mining.css','tests/mining.*','tests/refine.*'],
   a8: ['js/systems/account/**','js/systems/inventory/**','js/systems/market/**','js/systems/ships/**','js/ui/views/hangar/**','js/ui/views/market/**','css/views/hangar.css','css/views/market.css','tests/inventory.*','tests/market.*','tests/ships.*'],
   a9: ['js/systems/combat/**','js/systems/missions/**','js/ui/views/combat/**','js/ui/views/missions/**','css/views/combat.css','css/views/missions.css','tests/combat.*','tests/missions.*'],
+  a11: ['js/systems/skills/**','js/ui/views/skills/**','css/views/skills.css','tests/skills.*'],
   a10: ['tests/integration/**','tools/sim-*.mjs','docs/BALANCE_REPORT.md','docs/QA_REPORT.md'],
 };
 const re = g => new RegExp('^' + g.replace(/[.+^${}()|[\]\\]/g,'\\$&').replace(/\*\*/g,'\u0000').replace(/\*/g,'[^/]*').replace(/\u0000/g,'.*') + '$');
