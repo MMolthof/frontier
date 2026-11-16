@@ -25,3 +25,9 @@
 - UI: Schiffs-HUD (Ringe, Modulreihe, Hauptaktion), Stations-Hub, Overview mit Auswahl, Zielleiste, Modul-Symbole, dunkles Design (optional), Navigation beim Andocken/Abdocken
 - Neue Systeme: `skills`, `ships`, `shop`; neue Ansichten: Stationshub, Werft, Skills, Fitting, Schiffe im Hangar, Modul-Shop im Markt
 - `tools/smoke-ui.mjs` (jsdom-Smoke-Test), `tests/iteration2.test.mjs`; 266 Tests grün
+
+## 16.11.2026 – Korrekturen I2 (Lead)
+- System `starter`: einmalige Nachrüstung leerer Starterschiffe alter Spielstände, kostenlose Notfall-Ausrüstung (`starter/rearm`)
+- Markt: Module/Items verkaufen (`market/fixedRows`), Rohstoffe und Munition kaufen (`shop/buyItem`)
+- System `industry`: Module herstellen (Rezepte aus Modulpreis, Skill Industrie), Produktions-Ansicht
+- Tests: 270 grün; `tools/smoke-ui.mjs` deckt Verkauf, Kauf und Produktion ab

@@ -80,3 +80,5 @@
   .v-ov-row{grid-template-columns:22px 1fr 78px}
   .v-ov-row__type{display:none}
 }
+.v-sec{font-size:14px;color:var(--mute);margin:10px 0 2px;text-transform:none}
+.v-trades + .v-sec{margin-top:14px}
