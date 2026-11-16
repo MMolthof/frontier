@@ -11,6 +11,10 @@ import { createNeocom } from './neocom.js';
 import { createRouter } from './router.js';
 import { buildHash } from './route.js';
 import { createTopbar } from './topbar.js';
+import { createGuide } from './guide.js';
+import { createHud } from './hud.js';
+import { applyTheme, readTheme, saveTheme } from './theme.js';
+import { button as makeButton, updateButton } from '../components/button.js';
 import { createTranslatorFor } from './translate.js';
 import { errorToast, registerToasts } from './toasts.js';
 
@@ -43,6 +47,16 @@ export function mount(root, game, { views = [], warnings = [], env = {} } = {}) 
     })
   });
 
+  // Farbschema (hell ist Standard) und Umschalter in der Statusleiste
+  let theme = readTheme(win);
+  applyTheme(doc, theme);
+  const themeBtn = makeButton({ label: theme === 'dark' ? 'Helles Design' : 'Dunkles Design', variant: 'ghost', onClick: () => {
+    theme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(doc, theme); saveTheme(theme, win);
+    updateButton(themeBtn, { label: theme === 'dark' ? 'Helles Design' : 'Dunkles Design' });
+  } });
+  topbar.el.appendChild(themeBtn);
+
   const heading = h('h1', { class: 'l-content__title', tabindex: '-1' });
   const viewRoot = h('div', { class: 'l-view' });
   const subtabHost = h('div', { class: 'l-subtabs' });
@@ -51,6 +65,9 @@ export function mount(root, game, { views = [], warnings = [], env = {} } = {}) 
 
   let router = null;
   const navigate = (hash) => router.navigate(hash);
+  const hud = createHud({ game, notify });
+  const guide = createGuide({ game, navigate, notify });
+  const mainEl = h('main', { class: 'l-content', id: 'content' }, guide.el, subtabHost, heading, viewRoot);
   const neocom = createNeocom({ model: NEOCOM_MODEL, views: allViews, game, t, navigate });
 
   function syncTabs(route) {
@@ -71,8 +88,8 @@ export function mount(root, game, { views = [], warnings = [], env = {} } = {}) 
     h('header', { class: 'l-topbar' }, topbar.el),
     h('div', { class: 'l-body' },
       h('aside', { class: 'l-neocom' }, neocom.el),
-      h('main', { class: 'l-content', id: 'content' }, subtabHost, heading, viewRoot)),
-    toasts.el));
+      mainEl),
+    hud.el, toasts.el));
 
   router = createRouter({
     game, views: allViews, viewRoot, heading, t, location, win, raf, cancelRaf, doc, notify,
@@ -81,15 +98,18 @@ export function mount(root, game, { views = [], warnings = [], env = {} } = {}) 
   });
 
   const offToasts = registerToasts(game, (toast) => toasts.push(toast), t);
-  const offTop = game.subscribe(() => topbar.update());
+  const refreshFrame = () => { topbar.update(); guide.update(); hud.update(); mainEl.classList.toggle('l-content--hud', !hud.el.hasAttribute('hidden')); };
+  const offTop = game.subscribe(refreshFrame);
+  // Wie in EVE: Beim Andocken landest du im Stationsmenü, beim Abdocken in der Systemübersicht.
+  const offNav = [game.on('travel/docked', () => navigate('#/stationhub')), game.on('travel/undocked', () => navigate('#/system/overview'))];
   router.start();
-  topbar.update();
+  refreshFrame();
 
   return {
-    router, toasts, neocom, topbar,
+    router, toasts, neocom, topbar, hud, guide,
     navigate: (path) => router.navigate(path),
     errorToast: (result) => toasts.push(errorToast(result, t)),
-    destroy() { router.stop(); offToasts(); offTop(); clear(root); }
+    destroy() { router.stop(); offToasts(); offTop(); offNav.forEach((off) => off?.()); clear(root); }
   };
 }
 

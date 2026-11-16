@@ -28,3 +28,42 @@
   .s-neo__btn,.s-neo__btn--level2,.s-neo__btn--level3{justify-content:center;padding:6px 0}
   .s-top__label{display:none}
 }
+/* ---- Schiffs-HUD (EVE-Stil, nur im All) ---- */
+.s-hud{position:fixed;left:var(--neocom-w);right:0;bottom:10px;z-index:15;display:flex;justify-content:center;pointer-events:none;padding:0 10px}
+.s-hud[hidden]{display:none}
+.s-hud__panel{pointer-events:auto;display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 16px 8px 10px;box-shadow:0 6px 22px rgba(22,34,43,.22);max-width:780px}
+.s-hud__gauge{display:flex;flex-direction:column;align-items:center;gap:2px;flex:none}
+.s-hud__gauge .c-gauge{width:104px;height:104px}
+.s-hud__hp{font-size:11px}
+.s-hud__body{display:flex;flex-direction:column;gap:6px;min-width:0}
+.s-hud__head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.s-hud__state{color:var(--mute);font-size:13px}
+.s-hud__progress{width:100%}
+.s-hud__slots{display:flex;flex-direction:column;gap:6px}
+.s-hud__row{display:flex;gap:6px;flex-wrap:wrap}
+.s-hud__mod{width:46px;height:46px;border-radius:50%;border:2px solid var(--slot-high);background:var(--panel);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.s-hud__mod--mid{border-color:var(--slot-mid)}
+.s-hud__mod--low{border-color:var(--slot-low)}
+.s-hud__mod--empty{border-style:dashed;opacity:.45;cursor:default}
+.s-hud__mod--active{background:var(--acc2);box-shadow:0 0 0 3px var(--acc)}
+.s-hud__actions{display:flex;gap:8px;flex-wrap:wrap}
+.c-gauge{display:block}
+.c-gauge__track{fill:none;stroke:var(--line);stroke-width:6}
+.c-gauge__arc{fill:none;stroke-width:6;stroke-linecap:butt}
+.c-gauge__shield{stroke:var(--acc)}
+.c-gauge__armor{stroke:var(--gold)}
+.c-gauge__structure{stroke:var(--red)}
+.c-gauge__cap{stroke:var(--ok);stroke-width:5}
+.c-modicon{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.l-content--hud{padding-bottom:190px}
+/* ---- Zielleiste ---- */
+.s-guide{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;background:var(--acc2);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:var(--radius-card);padding:6px 12px;margin-bottom:var(--sp-3)}
+.s-guide[hidden]{display:none}
+.s-guide__label{color:var(--acc)}
+.s-guide__text{flex:1;min-width:200px}
+@media (max-width:760px){
+  .s-hud__panel{flex-direction:column;gap:6px;padding:8px}
+  .s-hud__gauge .c-gauge{width:72px;height:72px}
+  .s-hud__mod{width:44px;height:44px}
+  .l-content--hud{padding-bottom:250px}
+}

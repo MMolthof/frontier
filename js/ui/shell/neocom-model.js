@@ -13,6 +13,7 @@ export const NEOCOM_MODEL = [
   },
   {
     id: 'station', labelKey: 'shell.nav.station', icon: 'station', requires: 'docked', children: [
+      { id: 'station.hub', labelKey: 'shell.nav.overview', icon: 'overview', viewId: 'stationhub' },
       { id: 'hangar', labelKey: 'shell.nav.hangar', icon: 'hangar', viewId: 'hangar', subs: [{ id: 'items', labelKey: 'shell.nav.hangar.items' }, { id: 'ships', labelKey: 'shell.nav.hangar.ships' }] },
       { id: 'market', labelKey: 'shell.nav.market', icon: 'market', viewId: 'market', subs: [{ id: 'sell', labelKey: 'shell.nav.market.sell' }, { id: 'buy', labelKey: 'shell.nav.market.buy' }, { id: 'history', labelKey: 'shell.nav.market.history' }] },
       { id: 'missions', labelKey: 'shell.nav.missions', icon: 'missions', viewId: 'missions', subs: [{ id: 'available', labelKey: 'shell.nav.missions.available' }, { id: 'active', labelKey: 'shell.nav.missions.active' }] },

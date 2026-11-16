@@ -44,16 +44,24 @@ function rowButtons(row, ctl) {
   return h('span', { class: 'l-row' }, ...list);
 }
 
-function overviewTab(ov, ctl) {
-  const rows = ov.rows;
-  return card({ title: 'Überblick', subtitle: 'Alle Himmelskörper im System nach Entfernung.', children: table({
-    caption: 'Himmelskörper', rows, rowKey: (r) => r.id,
-    columns: [
-      { key: 'name', label: 'Name', render: (r) => h('span', { class: 'l-row' }, icon(r.type === 'star' ? 'star' : r.type, { size: 16 }), r.name, r.here ? h('span', { class: 'u-mute' }, ' (hier)') : null) },
-      { key: 'type', label: 'Typ', render: (r) => TYPE[r.type] ?? r.type },
-      { key: 'distanceAu', label: 'Distanz', align: 'right', render: (r) => `${fmt(r.distanceAu, 2)} AU` },
-      { key: 'act', label: 'Aktion', render: (r) => rowButtons(r, ctl) }
-    ] }) });
+const TYPE_ICON = { star: 'star', planet: 'planet', moon: 'planet', station: 'station', belt: 'mining', gate: 'gate', anomaly: 'info' };
+
+/** Listenansicht wie die Overview in EVE: Symbol, Name, Typ, Distanz. Auswahl per Klick, Doppelklick löst die Hauptaktion aus. */
+function overviewList(ov, ctl) {
+  const items = ov.rows.map((r) => {
+    const b = h('button', { type: 'button', class: `v-ov-row${ctl.ui.sel === r.id ? ' v-ov-row--sel' : ''}${r.here ? ' v-ov-row--here' : ''}`, 'aria-pressed': String(ctl.ui.sel === r.id) },
+      h('span', { class: 'v-ov-row__icon' }, icon(TYPE_ICON[r.type] ?? 'info', { size: 16 })), h('span', { class: 'v-ov-row__name' }, r.name, r.here ? h('span', { class: 'u-mute' }, ' · hier') : null),
+      h('span', { class: 'u-mute v-ov-row__type' }, TYPE[r.type] ?? r.type), h('span', { class: 'u-num v-ov-row__dist' }, r.here ? '–' : `${fmt(r.distanceAu, 2)} AU`));
+    b.addEventListener('click', () => { ctl.ui.sel = r.id; ctl.repaint(); });
+    b.addEventListener('dblclick', () => { const a = r.actions[0]; if (a === 'warp') ctl.run('travel/warp', { celestialId: r.id }); else if (a === 'dock') ctl.run('travel/dock'); else if (a === 'jump') ctl.run('travel/jump'); else if (a === 'mine') goto({ viewId: 'mining', sub: 'field' }); });
+    return b;
+  });
+  return card({ title: 'Overview', subtitle: 'Klick wählt, Doppelklick führt die Hauptaktion aus.', children: h('div', { class: 'v-ov-list', role: 'group', 'aria-label': 'Himmelskörper' }, ...items) });
+}
+
+function overviewTab(ov, game, ctl) {
+  return h('div', { class: 'l-grid l-grid--wide' }, overviewList(ov, ctl),
+    h('div', { class: 'l-stack' }, selectionCard(ov, ctl), card({ title: 'Systemkarte', children: orbitMap(ov, game, ctl) })));
 }
 
 const ORBIT = 400;
@@ -149,7 +157,7 @@ export const view = liveView({
     const parts = [statusCard(m.ov, ctl), warpMeter(game)];
     if (m.sub === 'map') parts.push(h('div', { class: 'l-grid l-grid--wide' }, card({ title: 'Systemkarte', subtitle: 'Klicke einen Himmelskörper an.', children: orbitMap(m.ov, game, ctl) }), selectionCard(m.ov, ctl)));
     else if (m.sub === 'stars') parts.push(starsTab(m.stars, ctl));
-    else parts.push(overviewTab(m.ov, ctl));
+    else parts.push(overviewTab(m.ov, game, ctl));
     return h('div', { class: 'l-stack' }, ...parts);
   }
 });
