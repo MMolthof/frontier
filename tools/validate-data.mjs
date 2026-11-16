@@ -513,7 +513,7 @@ export function balanceReport(data) {
   const start = bal.startSkills;
   const startRate = mineRate(bal.startShip, { ...start });
   // Startfitting (2 Miner) statt Referenz
-  const sf = bal.startFitting; let base = 0; for (const mid of sf.high) if (mid && modules[mid].activation?.kind === 'mine') base += modules[mid].activation.yieldM3 / modules[mid].activation.cycleTicks;
+  const sf = REFERENCE_FITS['ship.pebble'] ?? bal.startFitting; let base = 0; for (const mid of sf.high) if (mid && modules[mid].activation?.kind === 'mine') base += modules[mid].activation.yieldM3 / modules[mid].activation.cycleTicks;
   const sShip = ships[bal.startShip];
   let mult = 1;
   for (const [sid, l] of Object.entries(start)) for (const fx of skills[sid]?.effects ?? []) if (fx.stat === 'mining_yield') mult *= 1 + fx.perLevel * l;

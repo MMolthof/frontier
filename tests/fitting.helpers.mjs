@@ -4,7 +4,12 @@ import { join } from 'node:path';
 import { createTestData, createTestGame, REPO_ROOT } from './harness.js';
 import { system as fitting } from '../js/systems/fitting/index.js';
 
-export const BALANCE = JSON.parse(readFileSync(join(REPO_ROOT, 'data/balance.json'), 'utf8'));
+// Fitting-Tests laufen gegen ein festes Start-Setup (zwei Miner I und fünf Testmodule), unabhängig vom Civilian-Onboarding im echten Spiel.
+export const FIXTURE_START = {
+  startFitting: { high: ['mod.miner_1', 'mod.miner_1', null], mid: [null, null, null], low: [null], rig: [null, null] },
+  startItems: { 'mod.mining_upgrade_1': 1, 'mod.shield_extender_s': 1, 'mod.armor_plate_s': 1, 'mod.autocannon_s': 1, 'mod.rig_cargo_s': 1 }
+};
+export const BALANCE = { ...JSON.parse(readFileSync(join(REPO_ROOT, 'data/balance.json'), 'utf8')), ...FIXTURE_START };
 export const { data: DATA } = createTestData();
 export const STATION = BALANCE.startStation;
 

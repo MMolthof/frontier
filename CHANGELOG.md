@@ -19,3 +19,9 @@
 - Registry enthält nur vorhandene Module (kein Warnungs-Lärm); `core-demo` entfernt; Tests angepasst (261 grün)
 - Neu: `docs/ITERATIONS.md` (Iterationsprinzip, Roadmap, Spielanleitung), `tests/iteration1.test.mjs`
 - Zusammengeführt: Agent 3 (Shell), Agent 4 (Fitting-Engine), Lead-Patch 2 (Contract 1.2)
+
+## 15.11.2026 – Iteration 2 (Lead)
+- Starterschiff: Zivilier-Bergbaulaser und Zivilier-Geschütz (Preis 0, nicht käuflich, kein Handelswert); Testwerte der Fitting-Tests vom Live-Start entkoppelt
+- UI: Schiffs-HUD (Ringe, Modulreihe, Hauptaktion), Stations-Hub, Overview mit Auswahl, Zielleiste, Modul-Symbole, dunkles Design (optional), Navigation beim Andocken/Abdocken
+- Neue Systeme: `skills`, `ships`, `shop`; neue Ansichten: Stationshub, Werft, Skills, Fitting, Schiffe im Hangar, Modul-Shop im Markt
+- `tools/smoke-ui.mjs` (jsdom-Smoke-Test), `tests/iteration2.test.mjs`; 266 Tests grün

@@ -24,12 +24,14 @@ test('Registry lädt alle Systeme und Ansichten ohne Warnungen', async () => {
   assert.ok(registry.views.some((v) => v.id === 'overview'));
 });
 
-test('Start: angedockt in Aldara, Starterschiff mit zwei Minern', async () => {
+test('Start: angedockt in Aldara, Starterschiff mit Zivilier-Laser und Zivilier-Geschütz', async () => {
   const { game } = await newGame();
   assert.equal(game.select('travel/isDocked'), true);
+  assert.deepEqual(game.state.assets.ships[0].fitting.high, ['mod.civilian_miner', 'mod.civilian_gun', null]);
   const info = game.select('fitting/stats', { uid: 'u1' });
-  assert.equal(info.mining.lasers, 2);
-  assert.ok(info.mining.m3PerTick > 1);
+  assert.equal(info.mining.lasers, 1);
+  assert.ok(info.mining.m3PerTick > 0.3);
+  assert.ok(info.offense.dps.total > 0, 'Waffe vorhanden');
 });
 
 test('Spielschleife: abdocken, zum Gürtel warpen, abbauen, zurück, entladen, verkaufen, raffinieren', async () => {

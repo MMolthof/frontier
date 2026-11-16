@@ -8,7 +8,7 @@
 | Iteration | Spielbar danach | Inhalt |
 |---|---|---|
 | **I1 (fertig)** | Bergbau-Schleife | Start in der Station, abdocken, im Sonnensystem warpen (Überblick, Orbitkarte, Sternkarte), Tor-Sprung, Asteroidenfeld mit mehreren Erzen und Laser-Zielen, Erzhalle, andocken, Lager, Markt mit Preisdruck und Verlauf, Raffinerie |
-| **I2** | Fortschritt durch Skills und Schiffe | Skill-Training (Queue, Voraussetzungen, Effekte), Schiffe kaufen/umsteigen/parken, Modul-Kauf am Markt, **Fitting-Fenster** (Agent 4 Engine + Agent 5 Oberfläche), Mining-Upgrades wirken |
+| **I2 (fertig)** | EVE-näheres Spielgefühl und Fortschritt | Starterschiff mit Zivilier-Modulen, Schiffs-HUD, Stations-Hub, Overview mit „Selected Item“, Zielleiste, optional dunkles Design, Fitting-Fenster, Modul-Shop, Werft, Schiffswechsel, Skills |
 | **I3** | Kampf und Missionen | Agenten, Missionen Stufe 1, Kampfschiffe, NPC-Piraten (Gefahr in Low-Sec-Gürteln), Belohnung, Schiffsverlust |
 | **I4** | Tiefe im Bergbau und Industrie | Scannen und versteckte Anomalien, Jetcans, Drohnen, Produktion mit Blaupausen, Handel zwischen Stationen |
 | **I5** | Feinschliff | Missionsstufen 2–4, Balancing, Tutorial-Führung, Speicher-Export/Import, Barrierefreiheit-Check |
@@ -32,3 +32,15 @@
 
 ## Bekannte Lücken in I1
 Piraten, Scannen, Skills, Schiffskauf und Fitting-Fenster fehlen noch (siehe Roadmap). Die Menüeinträge dafür sind sichtbar, aber deaktiviert („Ansicht noch nicht verfügbar“).
+
+## So spielst du Iteration 2
+1. **Start:** Du bist in Aldara angedockt. Das **Stations-Hub** zeigt die Dienste. Oben unter der Statusleiste erscheint die **Zielleiste** mit dem nächsten Schritt und einem Knopf.
+2. **Abdocken:** Danach landest du in der Systemübersicht. Links die **Overview** (Klick wählt, Doppelklick warpt), rechts „Ausgewähltes Objekt“ und die Orbitkarte.
+3. **Schiffs-HUD** (unten, nur im All): Ringe für Schild, Panzerung und Struktur, darunter deine Module. Im Gürtel startest du den Bergbau, indem du den **Laser im HUD anklickst**. Der Zivilier-Laser ist langsam, aber er genügt für den Anfang.
+4. **Verkaufen:** Zur Station warpen, andocken, Hangar → Alles entladen, Markt → Verkaufen.
+5. **Besser werden:** Markt → **Kaufen** (Module), Fitting → Slot wählen → **Ersetzen**. Werft: größere Schiffe kaufen (Skills nötig). Hangar → Schiffe: umsteigen.
+6. **Skills:** Skills → Training. Das Training läuft auch im All weiter.
+7. **Design:** Oben „Dunkles Design“ schaltet auf die dunkle, EVE-nahe Optik um. Hell bleibt der Standard.
+
+## Bekannte Lücken in I2
+Kampf, Missionen und Piraten fehlen (I3). Das Geschütz am Starterschiff hat noch keine Wirkung. Attribute lassen sich noch nicht neu verteilen. Produktion und Scannen folgen in I4.

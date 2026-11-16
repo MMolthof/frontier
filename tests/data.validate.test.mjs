@@ -99,7 +99,7 @@ test('Spielstart: Startfitting, Startskills und Startstation sind gültig', asyn
   const ship = st.assets.ships[0];
   assert.equal(ship.typeId, 'ship.pebble');
   assert.equal(st.pilot.location.dockedStationId, 'cel.aldara.p1.station');
-  assert.deepEqual(ship.fitting.high.slice(0, 2), ['mod.miner_1', 'mod.miner_1']);
+  assert.deepEqual(ship.fitting.high.slice(0, 2), ['mod.civilian_miner', 'mod.civilian_gun']);
   assert.ok(data.celestials[st.pilot.location.dockedStationId].services.includes('market'));
   for (const id of Object.keys(st.pilot.skills)) assert.ok(data.skills[id]);
 });

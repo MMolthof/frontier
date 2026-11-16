@@ -11,3 +11,4 @@ Pages mit Quelle `main` / Root. Die Datei `.nojekyll` verhindert, dass Jekyll di
 - Lokal: `node tools/serve.mjs`, dann die ausgegebene Adresse öffnen.
 - Online: GitHub Pages (Quelle `main`, Root).
 - Stand und Roadmap: `docs/ITERATIONS.md` (Iteration 1 = Bergbau-Schleife, spielbar).
+- UI-Smoke-Test (optional): `npm i --no-save jsdom && node tools/smoke-ui.mjs`
