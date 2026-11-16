@@ -30,7 +30,21 @@ function ensureMarkets(state, data) {
   }
 }
 
+/** Rückkaufpreis je Einheit für Module und handelbare Items ohne Nachfrage-Modell; 0 = nicht handelbar. */
+export function fixedPrice(data, id) {
+  const mb = data.balance.market ?? {};
+  const mod = data.modules?.[id];
+  if (mod) return mod.price > 0 ? mod.price * (mb.sellModuleFactor ?? 0.5) : 0;
+  const it = data.items?.[id];
+  return it && it.kind !== 'mineral' && it.kind !== 'skillbook' && it.basePrice > 0 ? it.basePrice * (mb.sellItemFactor ?? 0.7) : 0;
+}
+const fixedName = (data, id) => data.modules?.[id]?.name ?? data.items?.[id]?.name ?? id;
+
 export function quote(state, data, stationId, itemId, qty) {
+  if (!tradableMap(data)[itemId] && fixedPrice(data, itemId) > 0) {
+    const unit = fixedPrice(data, itemId) * stationFactor(stationId);
+    return { avg: unit, demandAfter: null, priceAfter: unit, net: Math.floor(qty * unit * (1 - feeOf(state, data))) };
+  }
   const entry = tradableMap(data)[itemId];
   const slot = state.world.markets[stationId]?.[itemId];
   if (!entry || !slot) return null;
@@ -49,8 +63,19 @@ export const system = {
       const station = dockedId(state);
       if (!station) return fail('market.not_docked', 'Handel nur in Stationen.');
       if (!hasMarket(data, station)) return fail('market.no_market', 'Diese Station hat keinen Markt.');
+      if (!tradableMap(data)[p?.itemId] && fixedPrice(data, p?.itemId) > 0) {
+        const have = stockOf(state, station)[p.itemId] ?? 0;
+        const qty = Math.min(have, Math.floor(p?.qty ?? have));
+        if (qty <= 0) return fail('market.nothing', 'Davon liegt nichts im Stationslager.');
+        const q = quote(state, data, station, p.itemId, qty);
+        stockOf(state, station)[p.itemId] = have - qty;
+        state.account.isk += q.net;
+        ctx.log(`${qty}× ${fixedName(data, p.itemId)} verkauft für ${q.net.toLocaleString('de-DE')} ISK.`, 'good');
+        ctx.emit('market/sold', { itemId: p.itemId, name: fixedName(data, p.itemId), qty, isk: q.net });
+        return { ok: true, isk: q.net, qty };
+      }
       const entry = tradableMap(data)[p?.itemId];
-      if (!entry) return fail('market.bad_item', 'Diese Ware wird hier nicht gehandelt.');
+      if (!entry) return fail('market.bad_item', 'Diese Ware wird hier nicht gehandelt (Zivilier-Module und Skillbücher haben keinen Handelswert).');
       const have = stockOf(state, station)[entry.id] ?? 0;
       const qty = Math.min(have, Math.floor(p?.qty ?? have));
       if (qty <= 0) return fail('market.nothing', 'Davon liegt nichts im Stationslager.');
@@ -90,6 +115,16 @@ export const system = {
         itemId, name: map[itemId].name, kind: map[itemId].kind ?? 'ore', price: Math.round(map[itemId].basePrice * stationFactor(station) * slot.demand * 10) / 10,
         demand: slot.demand, stock: stockOf(state, station)[itemId] ?? 0, history: slot.history
       }));
+    },
+    /** Module und Items aus dem Stationslager mit festem Rückkaufpreis. */
+    'market/fixedRows': (state, data) => {
+      const station = dockedId(state);
+      if (!station || !hasMarket(data, station)) return [];
+      const map = tradableMap(data);
+      return Object.entries(stockOf(state, station)).filter(([id, q]) => q > 0 && !map[id] && fixedPrice(data, id) > 0).map(([itemId, stock]) => ({
+        itemId, name: fixedName(data, itemId), kind: data.modules?.[itemId] ? 'module' : 'item', category: data.modules?.[itemId]?.category ?? null, fixed: true,
+        price: Math.round(fixedPrice(data, itemId) * stationFactor(station) * 10) / 10, demand: null, stock, history: []
+      })).sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name));
     },
     'market/quote': (state, data, args) => {
       const station = dockedId(state);

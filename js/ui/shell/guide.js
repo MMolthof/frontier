@@ -20,7 +20,12 @@ export function nextStep(game) {
   const stockOre = Object.entries(stock).filter(([id]) => data.ores?.[id]).reduce((a, [, n]) => a + n, 0);
   const hasView = (id) => game.hasSelector?.('skills/queue') || id !== 'skills';
 
-  if (!miner) return { id: 'fit', text: 'Dein Schiff hat keinen Bergbaulaser. Rüste im Fitting einen ein.', cta: { label: 'Zum Fitting', hash: '#/fitting' } };
+  if (!miner) {
+    if (!docked) return { id: 'nolaser-space', text: 'Dein Schiff hat keinen Bergbaulaser. Docke an einer Station an, um dich auszurüsten.', cta: { label: 'Zur Systemübersicht', hash: '#/system/overview' } };
+    const stockMods = Object.entries(state.assets.stations[loc.dockedStationId]?.items ?? {}).filter(([id, n]) => n > 0 && data.modules?.[id]?.activation?.kind === 'mine');
+    if (stockMods.length) return { id: 'fit', text: 'Dein Schiff hat keinen Bergbaulaser. Im Lager liegt einer: baue ihn im Fitting ein.', cta: { label: 'Zum Fitting', hash: '#/fitting' } };
+    return { id: 'rearm', text: 'Dein Schiff hat keinen Bergbaulaser und im Lager liegt keiner. Hole dir kostenlose Zivilier-Ausrüstung.', cta: { label: 'Ausrüstung holen', type: 'starter/rearm' } };
+  }
   if (state.pilot.warp) return { id: 'warp', text: 'Du bist im Warp. Gleich angekommen.' };
   if (docked) {
     if (holdUnits > 0) return { id: 'unload', text: `Entlade dein Erz (${fmt(holdUnits)} Einheiten) in den Hangar.`, cta: { label: 'Alles entladen', type: 'inv/unloadAll' } };
