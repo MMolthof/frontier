@@ -44,3 +44,8 @@ Piraten, Scannen, Skills, Schiffskauf und Fitting-Fenster fehlen noch (siehe Roa
 
 ## Bekannte Lücken in I2
 Kampf, Missionen und Piraten fehlen (I3). Das Geschütz am Starterschiff hat noch keine Wirkung. Attribute lassen sich noch nicht neu verteilen. Produktion und Scannen folgen in I4.
+
+## Nachtrag zu I2 (Korrekturen vom 16.11.2026)
+- **Starterschiff leer:** Alte Spielstände im Browser wurden nie neu ausgerüstet. Beim Laden bekommt ein komplett leeres Starterschiff jetzt einmalig die Zivilier-Module. Fehlen dir Bergbaulaser oder Waffe ganz, gibt dir die Station kostenlosen Ersatz (Zielleiste: „Ausrüstung holen“). Wer es selbst neu starten will: Konto → Protokoll → „Neu starten“.
+- **Handel:** Module und Items aus dem Stationslager lassen sich am Markt verkaufen (fester Rückkaufpreis 50 % bei Modulen, 70 % bei Beute und Munition). Zivilier-Module und Skillbücher haben keinen Handelswert. Unter „Kaufen“ gibt es jetzt auch Mineralien und Munition.
+- **Industrie:** Neue Produktion: Module aus Mineralien herstellen (Skill Industrie Stufe 1, ein Fabrik-Platz, mehr mit höherem Skill). Das Ergebnis liegt im Stationslager, kann eingebaut oder verkauft werden. Kreislauf: abbauen, raffinieren oder Mineralien kaufen, herstellen, verkaufen.

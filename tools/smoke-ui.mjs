@@ -29,7 +29,7 @@ async function visit(hash, expect) { await go(hash); const t = text(); check(has
 console.log('Start-Warnungen:', warnings.length);
 check('HUD versteckt in der Station', root.querySelector('.s-hud').hasAttribute('hidden'));
 check('Zielleiste sichtbar', !root.querySelector('.s-guide').hasAttribute('hidden'), root.querySelector('.s-guide').textContent);
-for (const [h, e] of [['#/stationhub', 'Abdocken'], ['#/shipyard', 'Werft'], ['#/fitting', 'Schiffswerte'], ['#/skills/training', 'Training'], ['#/skills/catalog', 'Raumschiffkommando'], ['#/skills/attributes', 'Attribute'], ['#/market/buy', 'Module kaufen'], ['#/hangar/ships', 'Pebble'], ['#/hangar/items', 'Stationslager'], ['#/market/sell', 'Verkaufen'], ['#/industry/refinery', 'Raffinerie'], ['#/system/overview', 'Overview']]) await visit(h, e);
+for (const [h, e] of [['#/stationhub', 'Abdocken'], ['#/shipyard', 'Werft'], ['#/fitting', 'Schiffswerte'], ['#/skills/training', 'Training'], ['#/skills/catalog', 'Raumschiffkommando'], ['#/skills/attributes', 'Attribute'], ['#/market/buy', 'Kaufen in'], ['#/hangar/ships', 'Pebble'], ['#/hangar/items', 'Stationslager'], ['#/market/sell', 'Verkaufen'], ['#/industry/refinery', 'Raffinerie'], ['#/system/overview', 'Overview']]) await visit(h, e);
 
 // Modul kaufen und im Fitting einbauen
 await go('#/market/buy');
@@ -45,6 +45,26 @@ const mrow = [...root.querySelectorAll('.v-mod')].find((r) => r.textContent.incl
 check('Miner I im Browser', !!mrow, text().slice(0, 200));
 await click(btn('Ersetzen', mrow));
 check('Miner I eingebaut', game.state.assets.ships[0].fitting.high[0] === 'mod.miner_1', JSON.stringify(game.state.assets.ships[0].fitting));
+// Modul verkaufen (fester Rückkaufpreis), Rohstoffe kaufen, Produktion
+game.state.account.isk += 60000;
+await go('#/market/buy');
+const row2 = [...root.querySelectorAll('.v-mod')].find((r) => r.textContent.includes('Bergbaulaser I ') && !r.textContent.includes('Bergbaulaser II'));
+await click(btn('Kaufen', row2));
+await go('#/market/sell');
+check('Modul im Verkaufen-Reiter', text().includes('Module und Items') && text().includes('Bergbaulaser I'), text().slice(0, 300));
+const isk1 = game.state.account.isk;
+const srow = [...root.querySelectorAll('.v-trade')].find((r) => r.textContent.includes('Bergbaulaser I'));
+await click(btn('Verkaufen', srow));
+check('Modul verkauft', game.state.account.isk > isk1, `${isk1} -> ${game.state.account.isk}`);
+await go('#/market/buy');
+await click(btn('Rohstoffe und Munition'));
+check('Rohstoffe im Kaufen-Reiter', text().includes('Tritanium'), text().slice(0, 200));
+const trow = [...root.querySelectorAll('.v-mod')].find((r) => r.textContent.includes('Tritanium'));
+await click(btn('Kaufen', trow));
+check('Tritanium gekauft', (game.state.assets.stations['cel.aldara.p1.station'].items['item.tritanium'] ?? 0) >= 100);
+await visit('#/industry/production', 'Module herstellen');
+game.state.pilot.skills['skill.industry'] = { sp: 250, level: 1 }; await sleep(10); shell.router.refresh(); await sleep(10);
+check('Produktion: Herstellen-Knöpfe', [...root.querySelectorAll('button')].some((b) => b.textContent.trim() === 'Herstellen'), text().slice(0, 200));
 // Skills
 await go('#/skills/training');
 const trainBtn = btn('Trainieren');
