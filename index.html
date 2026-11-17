@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tick Frontier</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/shell.css">
+<link rel="stylesheet" href="css/overview.css">
+<link rel="stylesheet" href="css/theme-dark.css">
+<script>try{if(localStorage.getItem('tf_theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body>
+<div id="app">Lade …</div>
+<script type="module">
+  const app = document.getElementById('app');
+  const banner = (err) => {
+    let el = document.getElementById('boot-error');
+    if (!el) { el = document.createElement('pre'); el.id = 'boot-error'; el.style.cssText = 'margin:14px;padding:12px;border:1px solid #b23a3a;border-radius:8px;background:#fff;color:#b23a3a;white-space:pre-wrap;font:13px monospace'; document.body.append(el); }
+    el.textContent += 'Fehler: ' + (err && err.message ? err.message : String(err)) + '\n';
+    console.error(err);
+  };
+  addEventListener('error', (e) => banner(e.error || e.message));
+  addEventListener('unhandledrejection', (e) => banner(e.reason));
+  import('./js/util/boot.js')
+    .then(({ boot }) => boot(app))
+    .catch((err) => { app.textContent = 'Start fehlgeschlagen.'; banner(err); });
+</script>
+</body>
+</html>
