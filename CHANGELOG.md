@@ -31,3 +31,29 @@
 - Markt: Module/Items verkaufen (`market/fixedRows`), Rohstoffe und Munition kaufen (`shop/buyItem`)
 - System `industry`: Module herstellen (Rezepte aus Modulpreis, Skill Industrie), Produktions-Ansicht
 - Tests: 270 grün; `tools/smoke-ui.mjs` deckt Verkauf, Kauf und Produktion ab
+
+## 17.11.2026 – Zivilier-Module im Markt (Lead)
+- Zivilier-Module (`mod.civilian_miner` 250 ISK, `mod.civilian_gun` 150 ISK) sind im Markt (Kaufen › Module) käuflich; neue Modulfelder `buyPrice` und `civilian` (Schema + Loader).
+- Kein Verkaufswert (`price` bleibt 0) und keine Aufbereitung: neue Aktion `inv/scrap` (Hangar › Verschrotten), kein Erlös, keine Rohstoffe.
+- Balancing: Zivilier-Bergbaulaser 1,6 → 1,2 m³ je Zyklus, Zivilier-Geschütz kin 2 → 1.
+- Test `Zivilier-Module: im Markt kaufbar …`; 271 Tests grün.
+
+## 17.11.2026 – Fitting: Waffenplätze verständlicher (Lead)
+- Fitting-Fenster: Bei vollen Turret-/Werfer-Plätzen steht jetzt „Alle Turret-Plätze sind belegt … wähle einen belegten Slot und klicke Ersetzen“; leere High-Slots zeigen den Stand „Waffenplätze: Turret 2/2“.
+
+## 17.11.2026 – Feedback und Skill-Infos (Lead)
+- Skills (Katalog): jede Zeile zeigt Beschreibung und Effekt je Stufe samt aktuellem Wert und Maximum (z. B. „Abbauertrag: +5 % je Stufe · jetzt +20 %, Maximum +25 %“). Effekte kommen aus `skills.json` (`effects`), Anzeigenamen aus dem Skill-System.
+- Gesperrte Buttons: Klick blendet den Grund sichtbar neben dem Button ein (vorher nur Tooltip).
+- Tests: Skill-Katalog-Effekte, Sperrgrund im Smoke-Test; 272 Tests grün.
+
+## 17.11.2026 – Starterschiff „Wayfarer“ (Lead)
+- `ship.pebble` heißt jetzt **Wayfarer**, Untertitel „Starterschiff“ (neues Schiffsfeld `subtitle`), drei Turret-Plätze statt zwei. Alte Spielstände übernehmen den neuen Namen einmalig.
+- Untertitel in Übersicht, Hangar und Fitting-Fenster; Tests angepasst (272 grün).
+- `docs/ITERATIONS.md`: Cap-, Expeditions- und Blaupausen-Entscheidungen festgehalten.
+
+## 17.11.2026 – Iteration 3a: Energiespeicher (Lead)
+- Neues System `cap`: Cap gehört zum Piloten (Prozent), Schiffsgröße bestimmt nur die Kosten je Aktion; Schiffswechsel füllt nicht auf. Aufladen über Ticks, angedockt doppelt so schnell.
+- Bergbaulaser (nicht-zivil) verbrauchen Cap (`capUse`). Bei 0 % **Civilian Mode**: nur Zivilier-Module arbeiten, bis 25 % erreicht sind (Fitting-Selector `fitting/stats` mit `civilianOnly`).
+- Warp und Tor-Sprung kosten Cap; im Civilian Mode nur Notflug zu Stationen, kein Tor-Sprung (gegen Hauler-Missbrauch).
+- HUD: gelbe Cap-Leiste, bei leerem Cap grau mit roter Schrift „Civilian Mode“, nicht-zivile Module ausgegraut; Übersicht zeigt Energie-Zeile.
+- `balance.cap`, Schema, 6 neue Tests (278 grün), Smoke-Test für die Civilian-Anzeige.

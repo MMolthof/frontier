@@ -73,17 +73,17 @@ test('Fehlerklasse fit.size: Modulgröße muss Rumpfgröße entsprechen', () => 
   assert.equal(res.have, 'medium');
 });
 
-test('Fehlerklasse fit.hardpoints: Pebble hat 2 Turret-Hardpoints, dritter Laser/Waffe scheitert', () => {
+test('Fehlerklasse fit.hardpoints: Wayfarer hat 3 Turret-Plätze, aber keinen Werfer-Platz', () => {
   const game = makeGame({ skills: ALL5 });
   game.state.assets.stations[STATION].items['mod.miner_1'] = 1;
-  const res = equip(game, 'u1', 'high', 2, 'mod.miner_1');
-  assert.equal(res.error, 'fit.hardpoints');
-  assert.equal(res.need, 3);
-  assert.equal(res.have, 2);
-  assert.equal(res.message, 'Keine freien Waffenplätze mehr.');
-  // Launcher: Pebble hat keinen
   game.state.assets.stations[STATION].items['mod.launcher_s'] = 1;
-  assert.equal(equip(game, 'u1', 'high', 2, 'mod.launcher_s').error, 'fit.hardpoints');
+  // Launcher: der Wayfarer hat keinen Werfer-Platz
+  const res = equip(game, 'u1', 'high', 2, 'mod.launcher_s');
+  assert.equal(res.error, 'fit.hardpoints');
+  assert.equal(res.need, 1);
+  assert.equal(res.have, 0);
+  assert.equal(res.message, 'Keine freien Waffenplätze mehr.');
+  assert.equal(equip(game, 'u1', 'high', 2, 'mod.miner_1').ok, true, 'dritter Laser passt in den dritten Turret-Platz');
 });
 
 test('Hardpoints je Typ: Hybrid-Rumpf (Dart: 3 Turret + 2 Launcher in 4 High-Slots)', () => {
@@ -163,7 +163,7 @@ test('Startmodule des Teststarts: Einbau scheitert korrekt an Skills bzw. Hardpo
   for (const [id, [slot, index]] of Object.entries(slotOf)) reasons[id] = game.select('fitting/canFit', { uid: 'u1', slot, index, moduleId: id }).error;
   assert.deepEqual(reasons, {
     'mod.mining_upgrade_1': 'fit.skill', 'mod.shield_extender_s': 'fit.skill', 'mod.armor_plate_s': 'fit.skill',
-    'mod.autocannon_s': 'fit.hardpoints', 'mod.rig_cargo_s': 'fit.skill'
+    'mod.autocannon_s': 'fit.skill', 'mod.rig_cargo_s': 'fit.skill'
   });
 });
 
@@ -309,7 +309,7 @@ test('Schiffsvoraussetzungen (ship.skill) für ships/board', () => {
 });
 
 test('stats.errors: ungültiges Fitting listet alle Fehler (Slot-Typ, Größe, Skill, Hardpoints, PG)', () => {
-  const bad = { typeId: 'ship.pebble', fitting: { high: ['mod.miner_1', 'mod.miner_1', 'mod.miner_1'], mid: ['mod.miner_1', null, null], low: [null], rig: [null, null] } };
+  const bad = { typeId: 'ship.pebble', fitting: { high: ['mod.miner_1', 'mod.launcher_s', 'mod.miner_1'], mid: ['mod.miner_1', null, null], low: [null], rig: [null, null] } };
   const s = calcShipStats(bad, { skills: {} }, DATA);
   assert.equal(s.valid, false);
   const codes = s.errors.map((e) => e.code);

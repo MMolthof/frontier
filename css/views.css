@@ -82,3 +82,7 @@
 }
 .v-sec{font-size:14px;color:var(--mute);margin:10px 0 2px;text-transform:none}
 .v-trades + .v-sec{margin-top:14px}
+
+.v-skill__desc{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+.v-skill__eff{display:block;font-size:13px;color:var(--ok-text)}
+.c-btn__why{color:var(--red);font-size:13px;margin-left:8px}

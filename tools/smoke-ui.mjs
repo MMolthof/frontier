@@ -20,6 +20,7 @@ const view = () => root.querySelector('.l-view');
 const text = () => view().textContent.replace(/\s+/g, ' ').trim();
 const errs = () => warnings.filter((w) => /warf|Fehler/.test(w));
 async function go(hash) { location.hash = hash; await sleep(15); shell.router.refresh(); await sleep(8); }
+
 let failed = 0;
 const check = (name, cond, extra = '') => { if (!cond) { failed++; console.log('FAIL', name, String(extra).slice(0, 300)); } else console.log('ok  ', name); };
 const btn = (label, scope = root) => [...scope.querySelectorAll('button')].find((b) => b.textContent.trim().startsWith(label));
@@ -27,9 +28,30 @@ async function click(el) { el.dispatchEvent(new dom.window.Event('click', { bubb
 async function visit(hash, expect) { await go(hash); const t = text(); check(hash, errs().length === 0 && (!expect || t.includes(expect)), `${errs().join('|')} || ${t.slice(0, 200)}`); }
 
 console.log('Start-Warnungen:', warnings.length);
+{ // Civilian Mode im HUD: Schriftzug und ausgegraute Module
+  const g = window.__game ?? game;
+  g.dispatch('travel/undock');
+  g.state.pilot.cap = { pct: 0, civilian: true };
+  await new Promise((r) => setTimeout(r, 50));
+  g.advance?.(1);
+  const hud = document.querySelector('.s-hud');
+  const mode = hud?.querySelector('.s-hud__capmode');
+  if (!hud || !mode || mode.hasAttribute('hidden') || !hud.classList.contains('s-hud--civilian')) { failed++; console.log('FAIL Civilian-Mode-Anzeige'); } else console.log('ok   Civilian-Mode-Anzeige');
+  g.state.pilot.cap = { pct: 100, civilian: false };
+  g.dispatch('travel/dock');
+}
+{ // gesperrter Button zeigt den Grund beim Klick
+  const { button } = await import(`${R}/js/ui/components/button.js`);
+  const holder = document.createElement('div'); document.body.appendChild(holder);
+  const b = button({ label: 'Test', disabled: true, reason: 'Zu wenig ISK' }); holder.appendChild(b);
+  b.dispatchEvent(new dom.window.Event('click', { bubbles: true }));
+  const why = holder.querySelector('.c-btn__why');
+  if (!why || why.textContent !== 'Zu wenig ISK') { failed++; console.log('FAIL Sperrgrund sichtbar'); } else console.log('ok   Sperrgrund sichtbar');
+  holder.remove();
+}
 check('HUD versteckt in der Station', root.querySelector('.s-hud').hasAttribute('hidden'));
 check('Zielleiste sichtbar', !root.querySelector('.s-guide').hasAttribute('hidden'), root.querySelector('.s-guide').textContent);
-for (const [h, e] of [['#/stationhub', 'Abdocken'], ['#/shipyard', 'Werft'], ['#/fitting', 'Schiffswerte'], ['#/skills/training', 'Training'], ['#/skills/catalog', 'Raumschiffkommando'], ['#/skills/attributes', 'Attribute'], ['#/market/buy', 'Kaufen in'], ['#/hangar/ships', 'Pebble'], ['#/hangar/items', 'Stationslager'], ['#/market/sell', 'Verkaufen'], ['#/industry/refinery', 'Raffinerie'], ['#/system/overview', 'Overview']]) await visit(h, e);
+for (const [h, e] of [['#/stationhub', 'Abdocken'], ['#/shipyard', 'Werft'], ['#/fitting', 'Schiffswerte'], ['#/skills/training', 'Training'], ['#/skills/catalog', 'Raumschiffkommando'], ['#/skills/attributes', 'Attribute'], ['#/market/buy', 'Kaufen in'], ['#/hangar/ships', 'Wayfarer'], ['#/hangar/items', 'Stationslager'], ['#/market/sell', 'Verkaufen'], ['#/industry/refinery', 'Raffinerie'], ['#/system/overview', 'Overview']]) await visit(h, e);
 
 // Modul kaufen und im Fitting einbauen
 await go('#/market/buy');

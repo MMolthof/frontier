@@ -14,7 +14,7 @@ function mountSetup(opts) {
 test('Mount: Shell mit Übersicht, Neocom, Statusleiste; Ticks aktualisieren Knoten in place', () => {
   const { env, ui } = mountSetup({ docked: true });
   const text = () => env.root.textContent;
-  assert.match(text(), /Pebble/);
+  assert.match(text(), /Wayfarer/);
   assert.match(text(), /Aldara/);
   assert.equal(env.root.querySelectorAll('nav').length, 1);
   assert.equal(env.root.querySelectorAll('h1')[0].textContent, 'Übersicht');

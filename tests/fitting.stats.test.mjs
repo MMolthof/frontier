@@ -95,7 +95,7 @@ test('Gold: Starterschiff mit Startfitting und Startskills ≈ 2,0286 m³/Tick',
   close(s.mining.m3PerTick, 0.92 * 2 * 1.05 * 1.05, 1e-9);
   assert.equal(s.mining.lasers, 2);
   assert.equal(s.valid, true);
-  assert.deepEqual(s.slots.high.hardpoints.turret, { used: 2, max: 2 });
+  assert.deepEqual(s.slots.high.hardpoints.turret, { used: 2, max: 3 });
   assert.equal(s.slots.high.used, 2);
   assert.equal(s.fitting.pg.used, 2);
   assert.equal(s.fitting.cpu.used, 40);

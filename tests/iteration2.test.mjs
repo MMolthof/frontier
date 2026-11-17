@@ -19,7 +19,7 @@ test('Starterschiff: Zivilier-Laser und Zivilier-Geschütz, kein Handelswert', a
   const ship = game.state.assets.ships[0];
   assert.deepEqual(ship.fitting.high, ['mod.civilian_miner', 'mod.civilian_gun', null]);
   assert.equal(game.data.modules['mod.civilian_miner'].price, 0);
-  assert.equal(game.dispatch('shop/buyModule', { moduleId: 'mod.civilian_miner' }).ok, false, 'nicht käuflich');
+  assert.equal(game.data.modules['mod.civilian_miner'].buyPrice > 0, true, 'im Markt käuflich');
 });
 
 test('Modul kaufen, Zivilier-Laser ausbauen, Miner I einbauen: mehr Ertrag', async () => {
@@ -138,4 +138,29 @@ test('Rohstoffe kaufen, Modul herstellen (Skill nötig), verkaufen', async () =>
   assert.equal(game.select('industry/jobs').length, 0);
   assert.equal(game.state.assets.stations['cel.aldara.p1.station'].items['mod.miner_1'], 1);
   ok(game.dispatch('market/sell', { itemId: 'mod.miner_1', qty: 1 }));
+});
+
+test('Zivilier-Module: im Markt kaufbar, kein Verkaufswert, nur verschrottbar', async () => {
+  const game = await newGame();
+  const stock = game.state.assets.stations['cel.aldara.p1.station'].items;
+  const isk0 = game.state.account.isk;
+  const price = game.data.modules['mod.civilian_miner'].buyPrice;
+  ok(game.dispatch('shop/buyModule', { moduleId: 'mod.civilian_miner' }));
+  assert.equal(game.state.account.isk, isk0 - price);
+  assert.equal(stock['mod.civilian_miner'], 1);
+  assert.equal(game.dispatch('market/sell', { itemId: 'mod.civilian_miner', qty: 1 }).ok, false, 'kein Verkaufswert');
+  assert.ok(game.select('shop/modules', {}).some((m) => m.moduleId === 'mod.civilian_gun' && m.civilian));
+  const isk1 = game.state.account.isk;
+  ok(game.dispatch('inv/scrap', { itemId: 'mod.civilian_miner', qty: 1 }));
+  assert.equal(stock['mod.civilian_miner'], 0);
+  assert.equal(game.state.account.isk, isk1, 'kein Erlös');
+  assert.equal(game.dispatch('inv/scrap', { itemId: 'mod.miner_1', qty: 1 }).ok, false, 'nur Zivilier-Module');
+  assert.equal(game.dispatch('inv/scrap', { itemId: 'mod.civilian_miner', qty: 1 }).ok, false, 'nichts mehr im Lager');
+});
+
+test('Skill-Katalog liefert Beschreibung und Effekt je Stufe', async () => {
+  const game = await newGame();
+  const mining = game.select('skills/catalog').flatMap((g) => g.skills).find((s) => s.id === 'skill.mining');
+  assert.match(mining.description, /Abbauertrag/);
+  assert.deepEqual(mining.effects, [{ stat: 'mining_yield', label: 'Abbauertrag', perLevel: 0.05 }], 'gleiche Werte für Laser und Strip-Miner nur einmal');
 });

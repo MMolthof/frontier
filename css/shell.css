@@ -67,3 +67,19 @@
   .s-hud__mod{width:44px;height:44px}
   .l-content--hud{padding-bottom:250px}
 }
+
+/* Energiespeicher (Cap): gelb; bei 0 % Civilian Mode = ausgegraut mit roter Schrift */
+.s-hud__cap{display:grid;gap:3px;margin:4px 0 6px}
+.s-hud__caphead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px}
+.s-hud__caplabel{color:var(--gold-text);font-weight:600}
+.s-hud__capmode{color:var(--red);font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.s-hud__capbar{height:8px}
+.s-hud__capfill{background:var(--cap)}
+.s-hud__caphint{font-size:12px}
+.s-hud--civilian .s-hud__capfill{background:var(--cap-off)}
+.s-hud--civilian .s-hud__caplabel{color:var(--mute)}
+.s-hud--civilian .s-hud__caphint{color:var(--red)}
+.s-hud__mod--off{opacity:.4;filter:grayscale(1)}
+.c-gauge__cap{stroke:var(--cap)}
+.v-ov__cap{margin:2px 0 0;color:var(--gold-text)}
+.v-ov__cap--civ{color:var(--red)}
