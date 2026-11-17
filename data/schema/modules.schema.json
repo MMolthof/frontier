@@ -153,6 +153,13 @@
       "type": "integer",
       "minimum": 0
      },
+     "buyPrice": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "civilian": {
+      "type": "boolean"
+     },
      "description": {
       "type": "string"
      },

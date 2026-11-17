@@ -127,5 +127,13 @@
    330,
    880
   ]
+ },
+ "cap": {
+  "regenPctPerTick": 0.02,
+  "dockedFactor": 2,
+  "resumePct": 25,
+  "lowPct": 20,
+  "warpUnits": 8,
+  "jumpUnits": 12
  }
 }

@@ -49,3 +49,26 @@ Kampf, Missionen und Piraten fehlen (I3). Das Geschütz am Starterschiff hat noc
 - **Starterschiff leer:** Alte Spielstände im Browser wurden nie neu ausgerüstet. Beim Laden bekommt ein komplett leeres Starterschiff jetzt einmalig die Zivilier-Module. Fehlen dir Bergbaulaser oder Waffe ganz, gibt dir die Station kostenlosen Ersatz (Zielleiste: „Ausrüstung holen“). Wer es selbst neu starten will: Konto → Protokoll → „Neu starten“.
 - **Handel:** Module und Items aus dem Stationslager lassen sich am Markt verkaufen (fester Rückkaufpreis 50 % bei Modulen, 70 % bei Beute und Munition). Zivilier-Module und Skillbücher haben keinen Handelswert. Unter „Kaufen“ gibt es jetzt auch Mineralien und Munition.
 - **Industrie:** Neue Produktion: Module aus Mineralien herstellen (Skill Industrie Stufe 1, ein Fabrik-Platz, mehr mit höherem Skill). Das Ergebnis liegt im Stationslager, kann eingebaut oder verkauft werden. Kreislauf: abbauen, raffinieren oder Mineralien kaufen, herstellen, verkaufen.
+
+## Designentscheidungen vom 17.11.2026 (Cap, Expeditionen, Starterschiff)
+
+**Cap (Energiespeicher), geplant für I3**
+- Der Cap gehört zum Piloten und wird in Prozent gespeichert; Schiffswechsel füllt ihn nicht auf. Die Schiffsgröße bestimmt nur, wie viel Prozent eine Aktion kostet (große Schiffe: mehr Aktionen je volle Leiste).
+- Aufladen über feste Echtzeit (auch offline), nicht kaufbar.
+- Leerer Cap = Notbetrieb („Civilian Mode“): nur Zivilier-Module laufen. Markt, Produktion, Skills und Expeditionen brauchen keinen Cap.
+- Anzeige: Cap gelb; bei leerem Cap ausgegraut mit roter Schrift „Civilian Mode“. Der Unterschied zwischen Notbetrieb und vollem Cap mit richtigen Modulen muss deutlich spürbar sein.
+- Offen: Warp-/Sprungkosten bei leerem Cap (Hauler-Missbrauch), Dummy-Accounts erst bei Mehrspieler relevant.
+
+**Expeditionen (I4):** fiktiv, vom Spieler beauftragt, Rückkehr zur Station nach Wartezeit, nie für andere sichtbar, kein Zweitschiff.
+
+**Blaupausen / Forschung (Platzhalter, I4):** lange Echtzeit-Aufträge ohne Cap.
+
+**Starterschiff:** heißt jetzt „Wayfarer“ (Untertitel „Starterschiff“), drei Turret-Plätze.
+
+## So spielst du Iteration 3a (Cap / Civilian Mode)
+1. Neues Spiel (oder altes Spiel laden): in der Übersicht steht unter dem Schiff „Energie 100 %“.
+2. Kaufe im Markt einen **Bergbaulaser I** (braucht Skill Bergbau 1) und baue ihn im Fitting in den dritten High-Slot ein. Der Zivilier-Laser bleibt drin.
+3. Abdocken, zum Gürtel warpen (kostet ca. 2,5 % Energie), „Abbau starten“. Der Energie-Balken im HUD (gelb) sinkt.
+4. Bei 0 % erscheint rot **„Civilian Mode“**: der Balken wird grau, der Laser I ist ausgegraut, nur der Zivilier-Laser arbeitet. Warp geht nur noch zu Stationen (Notflug), Tor-Sprünge sind gesperrt.
+5. Zurück zur Station: angedockt lädt der Speicher doppelt so schnell auf. Ab 25 % gilt wieder volle Leistung.
+Werte (`data/balance.json › cap`): Aufladen 0,02 %/Tick (voll nach ca. 5.000 Ticks), Warp 8 Einheiten, Sprung 12 Einheiten, Bergbaulaser I 1 Einheit je Zyklus.

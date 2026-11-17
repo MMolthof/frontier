@@ -20,7 +20,7 @@
     "damage": {
      "em": 0,
      "th": 0,
-     "kin": 2,
+     "kin": 1,
      "exp": 1
     },
     "rangeKm": 3,
@@ -28,7 +28,9 @@
    },
    "effects": [],
    "price": 0,
-   "description": "Schwache Standardwaffe für Notfälle. Kein Handelswert."
+   "description": "Sehr schwache Notfallwaffe. Im Markt günstig zu kaufen, kein Verkaufswert: kann nur verschrottet werden (keine Rohstoffe).",
+   "civilian": true,
+   "buyPrice": 150
   },
   {
    "id": "mod.civilian_miner",
@@ -46,13 +48,15 @@
    "activation": {
     "kind": "mine",
     "cycleTicks": 5,
-    "yieldM3": 1.6,
+    "yieldM3": 1.2,
     "rangeKm": 6,
     "capUse": 0
    },
    "effects": [],
    "price": 0,
-   "description": "Einfachstes Bergbaugerät. Wird mit jedem Starterschiff geliefert, bringt beim Verkauf kein Geld."
+   "description": "Einfachster Bergbaulaser, langsam. Im Markt günstig zu kaufen, kein Verkaufswert: kann nur verschrottet werden (keine Rohstoffe).",
+   "civilian": true,
+   "buyPrice": 250
   },
   {
    "id": "mod.autocannon_s",
@@ -818,7 +822,7 @@
     "cycleTicks": 5,
     "yieldM3": 2.3,
     "rangeKm": 10,
-    "capUse": 0
+    "capUse": 1.0
    },
    "effects": [],
    "price": 9000
@@ -844,7 +848,7 @@
     "cycleTicks": 5,
     "yieldM3": 3.2,
     "rangeKm": 12,
-    "capUse": 0
+    "capUse": 1.4
    },
    "effects": [],
    "price": 72000
@@ -870,7 +874,7 @@
     "cycleTicks": 5,
     "yieldM3": 8,
     "rangeKm": 14,
-    "capUse": 0
+    "capUse": 3.6
    },
    "effects": [],
    "price": 140000
@@ -896,7 +900,7 @@
     "cycleTicks": 5,
     "yieldM3": 10,
     "rangeKm": 16,
-    "capUse": 0
+    "capUse": 4.5
    },
    "effects": [],
    "price": 520000

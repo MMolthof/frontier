@@ -71,6 +71,9 @@
       "minimum": 1,
       "maximum": 5
      },
+     "subtitle": {
+      "type": "string"
+     },
      "description": {
       "type": "string"
      },

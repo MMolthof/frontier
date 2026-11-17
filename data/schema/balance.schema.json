@@ -223,6 +223,18 @@
     }
    }
   },
+  "cap": {
+   "type": "object",
+   "properties": {
+    "regenPctPerTick": { "type": "number", "exclusiveMinimum": 0 },
+    "dockedFactor": { "type": "number", "minimum": 1 },
+    "resumePct": { "type": "number", "minimum": 1, "maximum": 100 },
+    "lowPct": { "type": "number", "minimum": 0, "maximum": 100 },
+    "warpUnits": { "type": "number", "minimum": 0 },
+    "jumpUnits": { "type": "number", "minimum": 0 }
+   },
+   "additionalProperties": false
+  },
   "liveTickMs": {
    "type": "integer",
    "minimum": 1
