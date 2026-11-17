@@ -1,0 +1,8 @@
+{"schema":1,"entries":[
+{"id":"skill.spaceship_command","name":"Raumschiffkommando","group":"spaceship_command","rank":1,"primary":"perception","secondary":"willpower","maxLevel":5,"requires":{},"price":0,"effects":[],"description":"Grundlage aller Schiffskommando-Skills."},
+{"id":"skill.mining","name":"Bergbau","group":"industry","rank":1,"primary":"memory","secondary":"intelligence","maxLevel":5,"requires":{},"price":1500,
+ "effects":[{"stat":"mining_yield","op":"mul","perLevel":0.05,"appliesTo":{"moduleGroup":"mining_laser"}}],"description":"+5 % Abbauertrag je Stufe."},
+{"id":"skill.mining_frigate","name":"Bergbaufregatte","group":"spaceship_command","rank":2,"primary":"perception","secondary":"willpower","maxLevel":5,"requires":{"skill.spaceship_command":1,"skill.mining":1},"price":8000,"effects":[],"description":"Schaltet Bergbaufregatten frei und verstärkt deren Rumpfbonus."},
+{"id":"skill.mining_upgrades","name":"Bergbau-Upgrades","group":"industry","rank":2,"primary":"intelligence","secondary":"memory","maxLevel":5,"requires":{"skill.mining":3},"price":20000,
+ "effects":[{"stat":"cpu_penalty_mining_upgrade","op":"mul","perLevel":-0.05}],"description":"Senkt die CPU-Strafe von Mining-Upgrade-Modulen."}
+]}

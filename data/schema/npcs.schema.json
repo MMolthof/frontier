@@ -1,0 +1,242 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "NPCs",
+ "type": "object",
+ "required": [
+  "schema",
+  "entries"
+ ],
+ "properties": {
+  "schema": {
+   "const": 1
+  },
+  "entries": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "class",
+     "structure_hp",
+     "armor_hp",
+     "shield_hp",
+     "res",
+     "dps",
+     "rangeKm",
+     "bounty",
+     "loot"
+    ],
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^npc\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1
+     },
+     "class": {
+      "enum": [
+       "frigate",
+       "destroyer",
+       "cruiser",
+       "battlecruiser",
+       "battleship"
+      ]
+     },
+     "structure_hp": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "armor_hp": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "shield_hp": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "res": {
+      "type": "object",
+      "required": [
+       "shield",
+       "armor",
+       "structure"
+      ],
+      "properties": {
+       "shield": {
+        "type": "object",
+        "required": [
+         "em",
+         "th",
+         "kin",
+         "exp"
+        ],
+        "properties": {
+         "em": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "th": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "kin": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "exp": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         }
+        },
+        "additionalProperties": false
+       },
+       "armor": {
+        "type": "object",
+        "required": [
+         "em",
+         "th",
+         "kin",
+         "exp"
+        ],
+        "properties": {
+         "em": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "th": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "kin": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "exp": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         }
+        },
+        "additionalProperties": false
+       },
+       "structure": {
+        "type": "object",
+        "required": [
+         "em",
+         "th",
+         "kin",
+         "exp"
+        ],
+        "properties": {
+         "em": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "th": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "kin": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "exp": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         }
+        },
+        "additionalProperties": false
+       }
+      },
+      "additionalProperties": false
+     },
+     "dps": {
+      "type": "object",
+      "required": [
+       "em",
+       "th",
+       "kin",
+       "exp"
+      ],
+      "properties": {
+       "em": {
+        "type": "number",
+        "minimum": 0
+       },
+       "th": {
+        "type": "number",
+        "minimum": 0
+       },
+       "kin": {
+        "type": "number",
+        "minimum": 0
+       },
+       "exp": {
+        "type": "number",
+        "minimum": 0
+       }
+      },
+      "additionalProperties": false
+     },
+     "rangeKm": {
+      "type": "number",
+      "minimum": 1
+     },
+     "bounty": {
+      "type": "integer",
+      "minimum": 0
+     },
+     "loot": {
+      "type": "array",
+      "items": {
+       "type": "object",
+       "required": [
+        "item",
+        "chance",
+        "qty"
+       ],
+       "properties": {
+        "item": {
+         "type": "string",
+         "pattern": "^item\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+        },
+        "chance": {
+         "type": "number",
+         "minimum": 0,
+         "maximum": 1
+        },
+        "qty": {
+         "type": "array",
+         "items": {
+          "type": "integer",
+          "minimum": 1
+         },
+         "minItems": 2,
+         "maxItems": 2
+        }
+       },
+       "additionalProperties": false
+      }
+     }
+    },
+    "additionalProperties": false
+   }
+  }
+ },
+ "additionalProperties": false
+}

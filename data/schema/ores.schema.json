@@ -1,0 +1,108 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "title": "Erze",
+ "type": "object",
+ "required": [
+  "schema",
+  "entries"
+ ],
+ "properties": {
+  "schema": {
+   "const": 1
+  },
+  "entries": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "volumeM3",
+     "basePrice",
+     "securityBand",
+     "rarity",
+     "refine"
+    ],
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^ore\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+     },
+     "name": {
+      "type": "string",
+      "minLength": 1
+     },
+     "volumeM3": {
+      "type": "number",
+      "minimum": 0.001
+     },
+     "basePrice": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "securityBand": {
+      "type": "array",
+      "items": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "minItems": 2,
+      "maxItems": 2
+     },
+     "rarity": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+     },
+     "refine": {
+      "type": "object",
+      "required": [
+       "batch",
+       "outputs"
+      ],
+      "properties": {
+       "batch": {
+        "type": "integer",
+        "minimum": 1
+       },
+       "outputs": {
+        "type": "object",
+        "patternProperties": {
+         "^item\\.[a-z0-9_]+$": {
+          "type": "integer",
+          "minimum": 1
+         }
+        },
+        "additionalProperties": false,
+        "minProperties": 1
+       },
+       "skill": {
+        "type": "string",
+        "pattern": "^skill\\.[a-z0-9_]+$"
+       }
+      },
+      "additionalProperties": false
+     },
+     "requires": {
+      "type": "object",
+      "patternProperties": {
+       "^skill\\.[a-z0-9_]+$": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5
+       }
+      },
+      "additionalProperties": false
+     },
+     "description": {
+      "type": "string"
+     }
+    },
+    "additionalProperties": false
+   }
+  }
+ },
+ "additionalProperties": false
+}

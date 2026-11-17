@@ -1,0 +1,6 @@
+.v-ov__ship{display:flex;gap:var(--sp-3);align-items:center}
+.v-ov__facts{display:flex;flex-direction:column;gap:2px}
+.v-ov__big{font-size:18px;font-weight:600}
+.v-ov__activity{display:flex;flex-direction:column;gap:var(--sp-2)}
+.v-ov__log li{display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--line);font-size:14px}
+.v-ov__steps{padding-left:20px;list-style:decimal;display:flex;flex-direction:column;gap:4px}

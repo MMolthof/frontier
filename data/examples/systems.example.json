@@ -1,0 +1,10 @@
+{"schema":1,"entries":[
+{"id":"sys.aldara","name":"Aldara","security":1.0,"region":"Kern","celestials":[
+ {"id":"cel.aldara.star","type":"star","name":"Aldara","au":0,"angleDeg":0},
+ {"id":"cel.aldara.p1","type":"planet","subtype":"barren","name":"Aldara I","au":0.7,"angleDeg":40},
+ {"id":"cel.aldara.p1.station","type":"station","name":"Aldara I – Orbitalwerft","parent":"cel.aldara.p1","au":0.7,"angleDeg":40,"services":["market","hangar","missions","refinery","industry","shipyard"],"owner":"corp.ore_guild"},
+ {"id":"cel.aldara.p2","type":"planet","subtype":"ocean","name":"Aldara II","au":1.6,"angleDeg":210},
+ {"id":"cel.aldara.belt1","type":"belt","name":"Aldara – Gürtel 1","au":2.4,"angleDeg":120,"fieldId":"field.aldara.belt1"},
+ {"id":"cel.aldara.gate.brenn","type":"gate","name":"Tor nach Brenn","au":8.5,"angleDeg":300,"to":"sys.brenn","toGate":"cel.brenn.gate.aldara"}],
+ "fields":[{"id":"field.aldara.belt1","kind":"belt","asteroidCount":[18,30],"oreWeights":{"ore.veldspar":75,"ore.scordite":25},"sizeM3":[8000,60000],"respawnTicks":1440,"hidden":false}]}
+]}

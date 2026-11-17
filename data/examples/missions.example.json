@@ -1,0 +1,6 @@
+{"schema":1,"entries":[
+{"id":"msn.l1.pirate_patrol","level":1,"title":"Piratenpatrouille","summary":"Vertreibe drei Piraten-Späher aus dem Nachbarsektor.","agentCorp":"corp.ore_guild",
+ "requires":{"shipCategory":"combat","minClass":"frigate","maxClass":"destroyer","standing":0},
+ "waves":[{"npcs":[{"id":"npc.rat_scout","count":3}]}],
+ "reward":{"isk":[8000,14000],"timeBonusTicks":30,"timeBonusIsk":3000,"standing":0.1},"loot":[{"item":"item.scrap_metal","chance":0.4,"qty":[1,3]}]}
+]}

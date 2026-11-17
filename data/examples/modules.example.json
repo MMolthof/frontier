@@ -1,0 +1,20 @@
+{"schema":1,"entries":[
+{"id":"mod.miner_1","name":"Miner I","slot":"high","hardpoint":"turret","group":"mining_laser","category":"mining","size":"small",
+ "fitting":{"powergrid":1,"cpu":20},"requires":{"skill.mining":1},
+ "activation":{"kind":"mine","cycleTicks":1,"yieldM3":40,"rangeKm":10,"capUse":0},"effects":[],"price":9000},
+{"id":"mod.mining_upgrade_1","name":"Mining Upgrade I","slot":"low","group":"mining_upgrade","category":"mining","size":"small",
+ "fitting":{"powergrid":0,"cpu":20},"requires":{"skill.mining_upgrades":1},
+ "effects":[{"stat":"mining_yield","op":"mul","value":1.05,"stackingGroup":"mining_yield"}],"price":15000},
+{"id":"mod.shield_extender_s","name":"Small Shield Extender","slot":"mid","group":"shield_extender","category":"shield","size":"small",
+ "fitting":{"powergrid":1,"cpu":25},"requires":{"skill.shield_management":1},
+ "effects":[{"stat":"shield_hp","op":"add","value":150}],"price":6000},
+{"id":"mod.autocannon_s","name":"Light Autocannon","slot":"high","hardpoint":"turret","group":"projectile_turret","category":"weapon","size":"small",
+ "fitting":{"powergrid":1,"cpu":12},"requires":{"skill.gunnery":1},
+ "activation":{"kind":"attack","cycleTicks":1,"damage":{"em":0,"th":0,"kin":9,"exp":7},"rangeKm":6,"capUse":0},"effects":[],"price":4500},
+{"id":"mod.armor_plate_s","name":"Light Armor Plate","slot":"low","group":"armor_plate","category":"armor","size":"small",
+ "fitting":{"powergrid":5,"cpu":0},"requires":{"skill.hull_upgrades":1},
+ "effects":[{"stat":"armor_hp","op":"add","value":150}],"price":5000},
+{"id":"mod.rig_cargo_s","name":"Small Ore Hold Rig","slot":"rig","group":"rig_storage","category":"rig","size":"small","permanent":true,
+ "fitting":{"calibration":100},"requires":{"skill.rigging":1},
+ "effects":[{"stat":"ore_hold","op":"mul","value":1.15,"stackingGroup":"ore_hold"}],"price":20000}
+]}

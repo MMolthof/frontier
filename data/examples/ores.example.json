@@ -1,0 +1,5 @@
+{"schema":1,"entries":[
+{"id":"ore.veldspar","name":"Veldspar","volumeM3":0.1,"basePrice":12,"securityBand":[0.45,1.0],"rarity":1,"refine":{"batch":100,"outputs":{"item.tritanium":415}},"requires":{}},
+{"id":"ore.scordite","name":"Scordite","volumeM3":0.15,"basePrice":20,"securityBand":[0.35,1.0],"rarity":2,"refine":{"batch":100,"outputs":{"item.tritanium":346,"item.pyerite":173}},"requires":{}},
+{"id":"ore.pyroxeres","name":"Pyroxeres","volumeM3":0.3,"basePrice":45,"securityBand":[0.0,0.65],"rarity":3,"refine":{"batch":100,"outputs":{"item.tritanium":351,"item.pyerite":25,"item.mexallon":50}},"requires":{}}
+]}
