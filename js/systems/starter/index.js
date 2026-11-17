@@ -17,11 +17,32 @@ function missing(state, data) {
 const sameGroupOwned = (data, id, fitted, stock) => [...fitted, ...Object.keys(stock).filter((k) => stock[k] > 0)]
   .some((other) => data.modules[other] && data.modules[other].group === data.modules[id].group && data.modules[other].slot === data.modules[id].slot);
 
+/** Jedes Schiff braucht für jeden Slot-Typ eine Liste in der Länge der Typ-Slots (sonst schlägt jeder Einbau mit „passt nicht in diesen Slot“ fehl). */
+function repairFittings(ctx) {
+  const { state, data } = ctx;
+  let repaired = 0;
+  for (const ship of state.assets.ships) {
+    const slots = data.ships?.[ship.typeId]?.slots;
+    if (!slots) continue;
+    ship.fitting = ship.fitting && typeof ship.fitting === 'object' ? ship.fitting : {};
+    for (const kind of ['high', 'mid', 'low', 'rig']) {
+      const list = Array.isArray(ship.fitting[kind]) ? ship.fitting[kind] : [];
+      const want = slots[kind] ?? 0;
+      if (Array.isArray(ship.fitting[kind]) && list.length >= want) continue;
+      while (list.length < want) list.push(null);
+      ship.fitting[kind] = list;
+      repaired += 1;
+    }
+  }
+  if (repaired) ctx.log('Schiffs-Slots repariert: Module können wieder eingebaut werden.', 'good');
+}
+
 export const system = {
   id: 'starter',
   init(ctx) {
     const { state, data } = ctx;
     state.flags ??= {};
+    repairFittings(ctx); // alte Spielstände: fehlende Slot-Listen am Schiff ergänzen
     if (!state.flags.starterRenamed) { // Starterschiff wurde von „Pebble“ umbenannt: alte Spielstände übernehmen den neuen Namen
       state.flags.starterRenamed = true;
       for (const s of state.assets.ships) if (s.name === 'Pebble' && data.ships[s.typeId]?.name && data.ships[s.typeId].name !== 'Pebble') s.name = data.ships[s.typeId].name;
