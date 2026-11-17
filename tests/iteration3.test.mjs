@@ -105,3 +105,22 @@ test('Angedockt lädt der Cap schneller auf', async () => {
   const space = game.state.pilot.cap.pct - 50;
   assert.ok(docked > space * 1.5, `angedockt ${docked} vs All ${space}`);
 });
+
+test('Alter Spielstand mit fehlenden Slot-Listen wird repariert und lässt sich ausrüsten', async () => {
+  const reader = createFsReader(REPO_ROOT);
+  const { data } = await loadData(reader, { onWarn() {} });
+  const registry = await loadRegistry(reader, { onWarn() {} });
+  const first = createGame({ data, systems: registry.systems, now: () => 0, onWarn() {} });
+  const saved = JSON.parse(JSON.stringify(first.state));
+  saved.assets.ships[0].fitting = { high: [], mid: [], low: [], rig: [] };
+  saved.flags.starterLoadout = true;
+  saved.assets.stations[saved.pilot.location.dockedStationId].items = { 'mod.civilian_miner': 1, 'mod.civilian_gun': 1 };
+  const game = createGame({ data, systems: registry.systems, now: () => 0, onWarn() {}, state: saved });
+  assert.deepEqual(game.state.assets.ships[0].fitting.high, [null, null, null]);
+  ok(game.dispatch('fitting/equip', { uid: 'u1', slot: 'high', index: 0, moduleId: 'mod.civilian_miner' }));
+  ok(game.dispatch('fitting/equip', { uid: 'u1', slot: 'high', index: 1, moduleId: 'mod.civilian_gun' }));
+  const noKeys = JSON.parse(JSON.stringify(first.state));
+  noKeys.assets.ships[0].fitting = {};
+  const g2 = createGame({ data, systems: registry.systems, now: () => 0, onWarn() {}, state: noKeys });
+  assert.equal(g2.state.assets.ships[0].fitting.rig.length, 2);
+});

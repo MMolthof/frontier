@@ -57,3 +57,7 @@
 - Warp und Tor-Sprung kosten Cap; im Civilian Mode nur Notflug zu Stationen, kein Tor-Sprung (gegen Hauler-Missbrauch).
 - HUD: gelbe Cap-Leiste, bei leerem Cap grau mit roter Schrift „Civilian Mode“, nicht-zivile Module ausgegraut; Übersicht zeigt Energie-Zeile.
 - `balance.cap`, Schema, 6 neue Tests (278 grün), Smoke-Test für die Civilian-Anzeige.
+
+## 17.11.2026 – Hotfix: Slots alter Spielstände (Lead)
+- Ursache für „Dieses Modul passt nicht in diesen Slot“ beim Starterschiff: Im Spielstand fehlten die Slot-Listen des Schiffs (`fitting.high/mid/low/rig` leer oder fehlend), daher scheiterte jeder Einbau. `starter` ergänzt sie beim Laden und schreibt ins Protokoll „Schiffs-Slots repariert“.
+- Test mit beschädigtem Spielstand; 279 Tests grün.
