@@ -22,7 +22,7 @@ function itemsTab(m, ctl) {
     { key: 'name', label: 'Item', render: (r) => h('span', { class: 'l-row' }, icon(r), r.name) },
     { key: 'kind', label: 'Art', render: (r) => KIND[r.kind] ?? r.kind },
     { key: 'qty', label: 'Menge', align: 'right', render: (r) => fmt(r.qty) },
-    { key: 'act', label: '', render: (r) => (r.kind === 'ore' ? actionButton({ label: 'Ins Schiff', variant: 'alt', run: ctl.run, type: 'inv/load', payload: { oreId: r.itemId } }) : null) }] })
+    { key: 'act', label: '', render: (r) => (r.kind === 'ore' ? actionButton({ label: 'Ins Schiff', variant: 'alt', run: ctl.run, type: 'inv/load', payload: { oreId: r.itemId } }) : r.scrappable ? actionButton({ label: 'Verschrotten', variant: 'ghost', run: ctl.run, type: 'inv/scrap', payload: { itemId: r.itemId, qty: 1 } }) : null) }] })
     : emptyState({ icon: 'hangar', title: 'Lager leer' }) });
   const all = card({ title: 'Alle Lagerorte', children: m.locs.length ? h('ul', { class: 'v-list' }, m.locs.map((l) => h('li', null, h('strong', null, l.name), h('span', { class: 'u-mute' }, ` – ${l.items} Einträge`)))) : h('p', { class: 'u-mute' }, 'Noch nichts eingelagert.') });
   return h('div', { class: 'l-stack' }, msgLine(ctl.ui.msg), h('div', { class: 'l-grid l-grid--wide' }, ship, stock),
@@ -30,7 +30,7 @@ function itemsTab(m, ctl) {
 }
 
 function shipsTab(m, ctl) {
-  return h('div', { class: 'l-stack' }, msgLine(ctl.ui.msg), h('div', { class: 'l-grid' }, ...m.ships.map((s) => card({ title: s.name, subtitle: `${CLASS_LABEL[s.className] ?? s.className} · ${s.stationName}`, children: h('div', { class: 'l-stack' },
+  return h('div', { class: 'l-stack' }, msgLine(ctl.ui.msg), h('div', { class: 'l-grid' }, ...m.ships.map((s) => card({ title: s.name, subtitle: `${s.type.subtitle ? `${s.type.subtitle} · ` : ''}${CLASS_LABEL[s.className] ?? s.className} · ${s.stationName}`, children: h('div', { class: 'l-stack' },
     h('div', { class: 'v-ship' }, shipArt({ ship: s.type, size: 110 }), h('div', { class: 'v-facts' },
       h('span', null, `Module: ${s.fitted}/${s.slots}`), h('span', null, `Erzhalle: ${fmt(s.oreHold)} m³`), s.active ? h('strong', null, 'Aktives Schiff') : null,
       !s.canFly ? h('span', { class: 'v-req v-req--no' }, `Skills fehlen: ${s.missing.map((x) => `${x.name} ${x.level}`).join(', ')}`) : null)),
@@ -49,7 +49,7 @@ export const view = liveView({
     return {
       sub: route.sub ?? 'items', stationName: game.data.celestials[stationId]?.name ?? '–', hold: game.select('mining/hold'), stock: game.select('inv/stock'), locs: game.select('inv/locations'),
       shipName: st.assets.ships.find((s) => s.uid === st.pilot.activeShipUid)?.name ?? '–',
-      ships: game.select('ships/list').map((s) => { const type = game.data.ships[s.typeId] ?? {}; return { ...s, type: { ...type, name: s.name }, oreHold: type.attributes?.ore_hold ?? 0 }; }), msg: ui.msg
+      ships: game.select('ships/list').map((s) => { const type = game.data.ships[s.typeId] ?? {}; return { ...s, type: { ...type, name: s.name, subtitle: type.subtitle }, oreHold: type.attributes?.ore_hold ?? 0 }; }), msg: ui.msg
     };
   },
   draw: (m, game, route, ctl) => (m.sub === 'ships' ? shipsTab(m, ctl) : itemsTab(m, ctl))

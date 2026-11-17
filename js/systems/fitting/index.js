@@ -61,6 +61,13 @@ function hypotheticalShip(ship, slot, index, moduleId) {
   return { ...ship, fitting };
 }
 
+/** Notbetrieb: aktive nicht-zivile Module bleiben aus; passive Module (Platten, Erweiterungen) wirken weiter. */
+function civilianFitting(fitting, data) {
+  const out = {};
+  for (const [slot, list] of Object.entries(fitting ?? {})) out[slot] = list.map((id) => { const m = id && data.modules?.[id]; return m?.activation && !m.civilian ? null : id; });
+  return out;
+}
+
 export const system = {
   id: 'fitting',
   init() {},
@@ -116,7 +123,8 @@ export const system = {
     'fitting/stats': (state, data, args, select) => {
       const ship = findShip(state, args?.uid);
       if (!ship || !data.ships?.[ship.typeId]) return null;
-      return calcShipStats(ship, readPilot(state, data, select), data);
+      const view = args?.civilianOnly ? { ...ship, fitting: civilianFitting(ship.fitting, data) } : ship;
+      return calcShipStats(view, readPilot(state, data, select), data);
     },
     'fitting/preview': (state, data, args, select) => {
       const ship = findShip(state, args?.uid);

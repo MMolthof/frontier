@@ -7,6 +7,7 @@
 {"id":"market","path":"systems/market/index.js","order":35},
 {"id":"shop","path":"systems/shop/index.js","order":36},
 {"id":"travel","path":"systems/travel/index.js","order":40},
+{"id":"cap","path":"systems/cap/index.js","order":44},
 {"id":"fitting","path":"systems/fitting/index.js","order":45},
 {"id":"mining","path":"systems/mining/index.js","order":50},
 {"id":"refine","path":"systems/refine/index.js","order":55},

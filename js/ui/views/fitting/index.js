@@ -57,6 +57,17 @@ function statsPanel(stats, data) {
       h('li', null, `Tempo ${fmt(stats.nav.speed)} m/s · Warp ${fmt(stats.nav.warpSpeed, 1)} AU/Tick · Ziele ${fmt(stats.nav.maxTargets)}`)));
 }
 
+
+/** Waffenplätze: wie viele Turret-/Werfer-Hardpoints sind belegt (nur High-Slots belegen Hardpoints). */
+function hardpointLine(high, data, hardpoints) {
+  const used = { turret: 0, launcher: 0 };
+  for (const id of high) { const hp = id && data.modules[id]?.hardpoint; if (hp in used) used[hp] += 1; }
+  const parts = Object.keys(used).filter((k) => (hardpoints?.[k] ?? 0) > 0).map((k) => `${HP_LABEL[k]} ${used[k]}/${hardpoints[k]}`);
+  return `Waffenplätze: ${parts.join(' · ') || 'keine'}. Ein High-Slot ohne freien Waffenplatz nimmt nur Module ohne Hardpoint auf.`;
+}
+
+const HP_LABEL = { turret: 'Turret', launcher: 'Werfer' };
+
 export const view = liveView({
   id: 'fitting', title: 'Fitting', group: 'fitting', order: 30,
   model(game, route, ui) {
@@ -80,9 +91,10 @@ export const view = liveView({
         if (!pv.stats.valid) check = { ok: false, message: pv.stats.errors[0]?.message ?? 'Passt nicht.' };
         else check = r.qtyInStation > 0 ? { ok: true } : { ok: false, message: 'Nicht im Stationslager.' };
       }
+      if (!selId && check.error === 'fit.hardpoints') check = { ...check, message: `Alle ${HP_LABEL[check.hardpoint] ?? 'Waffen'}-Plätze sind belegt (${check.have}/${check.have}). Wähle einen belegten Slot und klicke „Ersetzen“.` };
       return { ...r, check, delta: check.ok ? pv.delta : null };
     });
-    return { docked, ships, uid, shipName: ship.name, typeId: ship.typeId, fitting: ship.fitting, sel, stats, rows, all: Boolean(ui.all), search: ui.search ?? '', msg: ui.msg,
+    return { docked, ships, uid, shipName: ship.name, subtitle: type.subtitle, typeId: ship.typeId, fitting: ship.fitting, sel, stats, rows, all: Boolean(ui.all), search: ui.search ?? '', msg: ui.msg,
       cls: CLASS_LABEL[type.class] ?? type.class, hardpoints: type.hardpoints };
   },
   draw(m, game, route, ctl) {
@@ -104,10 +116,11 @@ export const view = liveView({
     const slotCard = card({ title: `${SLOT_LABEL[m.sel.type]}-Slot ${m.sel.index + 1}`, children: selMod
       ? h('div', { class: 'l-stack' }, h('span', { class: 'l-row' }, moduleIcon(selMod.category, { size: 22 }), h('strong', null, selMod.name)), h('span', { class: 'u-mute' }, selMod.description ?? ''),
         button({ label: 'Ausbauen', variant: 'alt', disabled: !m.docked, reason: 'Nur in Stationen', onClick: unequip }))
-      : h('p', { class: 'u-mute' }, 'Leer. Wähle unten ein Modul zum Einbauen.') });
+      : h('div', { class: 'l-stack' }, h('p', { class: 'u-mute' }, 'Leer. Wähle unten ein Modul zum Einbauen.'),
+        m.sel.type === 'high' ? h('p', { class: 'u-mute' }, hardpointLine(m.fitting.high, game.data, m.hardpoints)) : null) });
 
     const ships = m.ships.length > 1 ? h('div', { class: 'l-row' }, ...m.ships.map((s) => button({ label: `${s.name}${s.active ? ' (aktiv)' : ''}`, variant: 'alt', pressed: s.uid === m.uid, onClick: () => { ctl.ui.uid = s.uid; ctl.repaint(); } }))) : null;
-    const left = card({ title: m.shipName, subtitle: `${m.cls} · Slot anklicken, dann unten ein Modul wählen`, children: h('div', { class: 'l-stack' }, ships,
+    const left = card({ title: m.shipName, subtitle: `${m.subtitle ? `${m.subtitle} · ` : ''}${m.cls} · Slot anklicken, dann unten ein Modul wählen`, children: h('div', { class: 'l-stack' }, ships,
       m.docked ? null : h('p', { class: 'v-msg' }, 'Im All kannst du dein Schiff nur ansehen. Zum Umbauen docke an einer Station an.'), msgLine(ctl.ui.msg), h('div', { class: 'v-ringwrap' }, ring)) });
     const right = card({ title: 'Schiffswerte', children: statsPanel(m.stats, game.data) });
 

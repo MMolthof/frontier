@@ -3,6 +3,7 @@
 
 import { polarDistance } from '../../util/math.js';
 import { layoutSystems } from './layout.js';
+import { payTravel } from '../cap/index.js';
 
 const fail = (error, message) => ({ ok: false, error, message });
 const activeShip = (state) => state.assets.ships.find((s) => s.uid === state.pilot.activeShipUid);
@@ -41,6 +42,8 @@ export const system = {
       const from = data.celestials[loc.celestialId];
       if (!to || to.systemId !== loc.systemId) return fail('travel.bad_target', 'Das Ziel liegt nicht in diesem Sonnensystem.');
       if (!from || from.id === to.id) return fail('travel.same_place', 'Du bist bereits dort.');
+      const paid = payTravel(ctx, 'warp', to);
+      if (!paid.ok) return paid;
       const ticks = warpTicks(from, to, warpSpeed(state, data, ctx.select));
       stopMining(state);
       state.pilot.warp = { fromId: from.id, toId: to.id, ticksLeft: ticks, ticksTotal: ticks };
@@ -83,6 +86,8 @@ export const system = {
       if (!gate || gate.type !== 'gate' || gate.id !== loc.celestialId) return fail('travel.not_at_gate', 'Du musst zuerst zu einem Sternentor warpen.');
       const out = data.celestials[gate.toGate];
       if (!out) return fail('travel.no_exit', 'Das Gegentor fehlt.');
+      const paid = payTravel(ctx, 'jump', gate);
+      if (!paid.ok) return paid;
       loc.systemId = out.systemId;
       loc.celestialId = out.id;
       stopMining(state);

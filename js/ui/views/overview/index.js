@@ -17,9 +17,10 @@ function build(root, game) {
   const t = createTranslatorFor(game);
   const refs = { t, logSig: '' };
   refs.shipName = h('p', { class: 'v-ov__big' });
+  refs.capLine = h('p', { class: 'u-mute v-ov__cap' });
   refs.shipType = h('p', { class: 'u-mute' });
   refs.shipHolder = h('div');
-  refs.shipCard = card({ title: t('overview.ship'), children: h('div', { class: 'v-ov__ship' }, refs.shipHolder, h('div', { class: 'v-ov__facts' }, refs.shipName, refs.shipType)) });
+  refs.shipCard = card({ title: t('overview.ship'), children: h('div', { class: 'v-ov__ship' }, refs.shipHolder, h('div', { class: 'v-ov__facts' }, refs.shipName, refs.shipType, refs.capLine)) });
 
   refs.isk = h('p', { class: 'v-ov__big u-isk' });
   refs.iskCard = card({ title: t('overview.isk'), children: refs.isk });
@@ -60,7 +61,10 @@ function update(root, game) {
   const type = data.ships?.[ship?.typeId];
   if (ship) {
     setText(refs.shipName, ship.name ?? type?.name ?? ship.typeId);
-    setText(refs.shipType, type ? `${type.name} · ${type.class}` : String(ship.typeId));
+    const capState = game.select('cap/status') ?? NO_CAP;
+    setText(refs.capLine, capState.civilian ? `Energie ${fmt(capState.pct, 0)} % · Civilian Mode (volle Leistung ab ${fmt(capState.resumePct, 0)} %)` : `Energie ${fmt(capState.pct, 0)} %`);
+    refs.capLine.classList.toggle('v-ov__cap--civ', capState.civilian);
+    setText(refs.shipType, type ? `${type.subtitle ? `${type.subtitle} · ` : ''}${type.name} · ${type.class}` : String(ship.typeId));
     if (refs.shipArtId !== ship.typeId) {
       refs.shipArtId = ship.typeId;
       refs.shipHolder.replaceChildren(shipArt({ ship: type ?? { id: ship.typeId, name: ship.name }, size: 140, t }));
@@ -107,6 +111,8 @@ function update(root, game) {
 }
 
 /** @type {import('../../../types.js').View} */
+const NO_CAP = { pct: 100, civilian: false, mode: 'full', resumePct: 25, ticksToResume: 0, hasCivilianModule: true };
+
 export const view = {
   id: 'overview',
   title: 'Übersicht',

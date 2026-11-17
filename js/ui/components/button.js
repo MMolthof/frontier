@@ -16,9 +16,9 @@ export function button(o = {}) {
     class: ['c-btn', o.variant && o.variant !== 'primary' ? `c-btn--${VARIANTS.includes(o.variant) ? o.variant : 'alt'}` : null, o.icon && !o.label ? 'c-btn--icon' : null],
     'aria-label': o.ariaLabel ?? (o.icon && !o.label ? o.label : null)
   });
-  const state = { onClick: o.onClick, disabled: false, label: null, labelEl: null };
+  const state = { onClick: o.onClick, disabled: false, label: null, labelEl: null, reason: null, why: null };
   el.addEventListener('click', (ev) => {
-    if (state.disabled) { ev.preventDefault(); return; }
+    if (state.disabled) { ev.preventDefault(); showWhy(el, state); return; }
     state.onClick?.(ev);
   });
   if (o.icon) el.appendChild(icon(o.icon));
@@ -32,6 +32,15 @@ export function button(o = {}) {
 }
 button.state = new WeakMap();
 
+/** Klick auf einen gesperrten Button: Grund sichtbar neben dem Button einblenden (Tooltips sieht man nicht überall). */
+function showWhy(el, state) {
+  if (!state.reason || !el.parentNode) return;
+  state.why?.remove();
+  state.why = h('span', { class: 'c-btn__why', role: 'alert' }, state.reason);
+  el.after(state.why);
+  globalThis.setTimeout(() => { state.why?.remove(); state.why = null; }, 6000);
+}
+
 /** Ändert Beschriftung, Zustand und Handler in place. */
 export function updateButton(el, o = {}) {
   const state = button.state.get(el);
@@ -40,6 +49,7 @@ export function updateButton(el, o = {}) {
   if ('disabled' in o || 'reason' in o) {
     state.disabled = Boolean(o.disabled);
     if (state.disabled) el.setAttribute('aria-disabled', 'true'); else el.removeAttribute('aria-disabled');
+    state.reason = state.disabled ? o.reason ?? null : null;
     if (state.disabled && o.reason) el.setAttribute('title', o.reason); else el.removeAttribute('title');
   }
   if ('pressed' in o) {

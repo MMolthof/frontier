@@ -54,7 +54,7 @@ function buyModules(m, ctl) {
   search.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ctl.ui.search = search.value; ctl.repaint(); } });
   search.addEventListener('change', () => { ctl.ui.search = search.value; ctl.repaint(); });
   const rows = m.shop.slice(0, 60).map((x) => h('li', { class: 'v-mod' }, h('span', { class: 'v-mod__icon' }, moduleIcon(x.category, { size: 22 })),
-    h('div', { class: 'v-mod__main' }, h('strong', null, x.name), h('span', { class: 'u-mute' }, ` ${SLOT_LABEL[x.slot]} · ${SIZE_LABEL[x.size] ?? x.size} · PG ${fmt(x.fitting.powergrid ?? 0)} · CPU ${fmt(x.fitting.cpu ?? 0)}`),
+    h('div', { class: 'v-mod__main' }, h('strong', null, x.name, x.civilian ? h('span', { class: 'u-mute' }, ' (Zivilier)') : null), h('span', { class: 'u-mute' }, ` ${SLOT_LABEL[x.slot]} · ${SIZE_LABEL[x.size] ?? x.size} · PG ${fmt(x.fitting.powergrid ?? 0)} · CPU ${fmt(x.fitting.cpu ?? 0)}`),
       x.requires.length ? h('span', { class: x.canUse ? 'v-req v-req--ok' : 'v-req v-req--no' }, x.requires.map((r) => `${r.name} ${r.level}${r.ok ? '' : ' (fehlt)'}`).join(', ')) : null),
     h('span', { class: 'u-isk v-mod__qty' }, `${fmt(x.price)} ISK`), h('span', { class: 'u-mute u-num v-mod__qty' }, x.owned ? `Lager: ${fmt(x.owned)}` : ''),
     button({ label: 'Kaufen', variant: 'primary', disabled: x.price > m.isk, reason: 'Zu wenig ISK', onClick: () => ctl.run('shop/buyModule', { moduleId: x.moduleId }) })));
@@ -77,7 +77,7 @@ function buyItems(m, ctl) {
 
 function buyTab(m, ctl) {
   const mode = ctl.ui.mode ?? 'modules';
-  return card({ title: `Kaufen in ${m.stationName}`, subtitle: 'Käufe landen im Stationslager. Module baust du im Fitting ein, Mineralien brauchst du für die Herstellung. Zivilier-Module sind nicht käuflich.', children: h('div', { class: 'l-stack' },
+  return card({ title: `Kaufen in ${m.stationName}`, subtitle: 'Käufe landen im Stationslager. Module baust du im Fitting ein, Mineralien brauchst du für die Herstellung. Zivilier-Module sind günstig, haben aber keinen Wiederverkaufswert und lassen sich nur im Hangar verschrotten.', children: h('div', { class: 'l-stack' },
     msgLine(ctl.ui.msg), modeChips(ctl, mode), mode === 'items' ? buyItems(m, ctl) : buyModules(m, ctl)) });
 }
 

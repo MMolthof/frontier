@@ -8,6 +8,8 @@ import { shipGauge } from '../components/gauge.js';
 const ROWS = [['high', 'Waffen und Werkzeuge'], ['mid', 'Mittlere Slots'], ['low', 'Untere Slots']];
 
 /** @param {{game: any, notify: (kind: string, text: string) => void}} o */
+const NO_CAP = { pct: 100, civilian: false, mode: 'full', resumePct: 25, ticksToResume: 0, hasCivilianModule: true };
+
 export function createHud({ game, notify }) {
   const gauge = shipGauge();
   const name = h('strong', { class: 's-hud__name' });
@@ -16,10 +18,15 @@ export function createHud({ game, notify }) {
   const slots = h('div', { class: 's-hud__slots', role: 'group', 'aria-label': 'Module' });
   const actions = h('div', { class: 's-hud__actions' });
   const progress = h('span', { class: 'c-meter__track s-hud__progress' }, h('span', { class: 'c-meter__bar' }));
+  const capLabel = h('span', { class: 's-hud__caplabel' });
+  const capMode = h('strong', { class: 's-hud__capmode', hidden: '' }, 'Civilian Mode');
+  const capHint = h('span', { class: 's-hud__caphint u-mute' });
+  const capBar = h('span', { class: 'c-meter__track s-hud__capbar', role: 'img' }, h('span', { class: 'c-meter__bar s-hud__capfill' }));
+  const capRow = h('div', { class: 's-hud__cap' }, h('div', { class: 's-hud__caphead' }, capLabel, capMode), capBar, capHint);
   const el = h('section', { class: 's-hud', 'aria-label': 'Schiffsanzeige', hidden: '' },
     h('div', { class: 's-hud__panel' },
       h('div', { class: 's-hud__gauge' }, gauge.el, hpText),
-      h('div', { class: 's-hud__body' }, h('div', { class: 's-hud__head' }, name, stateText), progress, slots, actions)));
+      h('div', { class: 's-hud__body' }, h('div', { class: 's-hud__head' }, name, stateText), progress, capRow, slots, actions)));
 
   let slotSig = '';
   let actionSig = '';
@@ -29,6 +36,7 @@ export function createHud({ game, notify }) {
 
   function activate(mod) {
     const kind = mod?.activation?.kind;
+    if (game.state.pilot.cap?.civilian && mod?.activation && !mod.civilian) return notify('warn', 'Civilian Mode: Dieses Modul ist ohne Energie ausgeschaltet. Nur Zivilier-Module arbeiten.');
     if (kind === 'mine') return game.state.mining.sessions.length ? run('mining/stop') : run('mining/start');
     if (kind === 'attack') return notify('info', 'Keine Ziele in Reichweite. Kämpfe folgen in einer späteren Iteration.');
     return notify('info', `${mod?.name ?? 'Modul'} wirkt dauerhaft.`);
@@ -77,20 +85,34 @@ export function createHud({ game, notify }) {
     el.removeAttribute('hidden');
     const type = game.data.ships?.[ship.typeId];
     let stats = null;
-    try { stats = game.select('fitting/stats', { uid: ship.uid }); } catch { /* ohne Fitting */ }
+    const capState = game.select('cap/status') ?? NO_CAP;
+    try { stats = game.select('fitting/stats', { uid: ship.uid, civilianOnly: capState.civilian }); } catch { /* ohne Fitting */ }
     const max = {
       shield: stats?.defense?.shield?.hp ?? type?.attributes?.shield_hp ?? 1,
       armor: stats?.defense?.armor?.hp ?? type?.attributes?.armor_hp ?? 1,
       structure: stats?.defense?.structure?.hp ?? type?.attributes?.structure_hp ?? 1
     };
     const dmg = ship.damage ?? {};
-    const v = { shield: (dmg.shield ?? max.shield) / max.shield, armor: (dmg.armor ?? max.armor) / max.armor, structure: (dmg.structure ?? max.structure) / max.structure, cap: 1 };
+    const v = { shield: (dmg.shield ?? max.shield) / max.shield, armor: (dmg.armor ?? max.armor) / max.armor, structure: (dmg.structure ?? max.structure) / max.structure, cap: capState.pct / 100 };
     gauge.update(v);
     setText(hpText, `${fmt(v.shield * 100)} · ${fmt(v.armor * 100)} · ${fmt(v.structure * 100)} %`);
     setText(name, ship.name);
     rebuildSlots(ship);
     const mining = state.mining.sessions.length > 0;
-    for (const { b, mod } of modButtons) b.classList.toggle('s-hud__mod--active', mining && mod.activation?.kind === 'mine');
+    for (const { b, mod } of modButtons) {
+      const off = capState.civilian && Boolean(mod.activation) && !mod.civilian;
+      b.classList.toggle('s-hud__mod--active', mining && mod.activation?.kind === 'mine' && !off);
+      b.classList.toggle('s-hud__mod--off', off);
+      b.setAttribute('title', off ? `${mod.name} (ohne Energie ausgeschaltet)` : mod.name);
+    }
+    el.classList.toggle('s-hud--civilian', capState.civilian);
+    setText(capLabel, `Energie ${fmt(capState.pct, 0)} %`);
+    capBar.firstChild.style.width = `${capState.pct}%`;
+    capBar.setAttribute('aria-label', `Energiespeicher ${fmt(capState.pct, 0)} Prozent`);
+    if (capState.civilian) capMode.removeAttribute('hidden'); else capMode.setAttribute('hidden', '');
+    setText(capHint, capState.civilian
+      ? (capState.hasCivilianModule ? `Nur Zivilier-Module arbeiten · volle Leistung ab ${fmt(capState.resumePct, 0)} % (ca. ${fmt(capState.ticksToResume, 0)} Ticks)` : 'Kein Zivilier-Modul eingebaut: Abbau nicht möglich. Warpe zur Station und lade auf.')
+      : capState.mode === 'low' ? 'Energie niedrig: bald Civilian Mode.' : '');
 
     const loc = state.pilot.location;
     const cel = game.data.celestials?.[loc.celestialId];

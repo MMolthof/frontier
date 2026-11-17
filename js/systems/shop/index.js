@@ -1,10 +1,12 @@
 // System "shop": Module bei der NPC-Station kaufen (MASTER_PLAN 5.7). Gekaufte Module liegen im Stationslager.
-// Zivilier-Module (Preis 0) sind nicht käuflich und haben keinen Handelswert.
+// Zivilier-Module sind käuflich (buyPrice), haben aber keinen Handelswert (price 0): nur verschrotten.
 
 import { stationFactor } from '../market/index.js';
 
 const fail = (error, message) => ({ ok: false, error, message });
 const BUYABLE = ['mineral', 'ammo'];
+/** Kaufpreis eines Moduls: Zivilier-Module haben einen Kaufpreis (buyPrice), aber keinen Verkaufswert (price 0). */
+const modPrice = (m) => (m.buyPrice > 0 ? m.buyPrice : m.price);
 const unitPrice = (data, item, station) => Math.max(1, Math.ceil(item.basePrice * stationFactor(station) * (data.balance.market?.buyMarkup ?? 1.3)));
 const dockedId = (state) => state.pilot.location.dockedStationId;
 const stockOf = (state, id) => (state.assets.stations[id] ??= { items: {} }).items;
@@ -40,8 +42,8 @@ export const system = {
       if (!mod) return fail('shop.unknown', 'Unbekanntes Modul.');
       if (!station) return fail('shop.not_docked', 'Module gibt es nur in Stationen.');
       if (!data.celestials[station]?.services?.includes('market')) return fail('shop.no_market', 'Diese Station hat keinen Markt.');
-      if (!(mod.price > 0)) return fail('shop.not_for_sale', 'Dieses Modul ist nicht käuflich.');
-      const cost = mod.price * qty;
+      if (!(modPrice(mod) > 0)) return fail('shop.not_for_sale', 'Dieses Modul ist nicht käuflich.');
+      const cost = modPrice(mod) * qty;
       if (state.account.isk < cost) return fail('shop.no_isk', `Zu wenig ISK (${cost.toLocaleString('de-DE')} nötig).`);
       state.account.isk -= cost;
       const stock = stockOf(state, station);
@@ -66,12 +68,12 @@ export const system = {
       const station = dockedId(state);
       const stock = station ? stockOf(state, station) : {};
       const q = (args?.search ?? '').toLowerCase();
-      return data.lists.modules.filter((m) => m.price > 0 && (!args?.slot || m.slot === args.slot) && (!args?.category || m.category === args.category) && (!q || m.name.toLowerCase().includes(q) || m.group.includes(q)))
+      return data.lists.modules.filter((m) => modPrice(m) > 0 && (!args?.slot || m.slot === args.slot) && (!args?.category || m.category === args.category) && (!q || m.name.toLowerCase().includes(q) || m.group.includes(q)))
         .map((m) => {
           const requires = reqs(state, data, m.requires);
-          return { moduleId: m.id, name: m.name, slot: m.slot, size: m.size, category: m.category, group: m.group, price: m.price, fitting: m.fitting, requires, canUse: requires.every((r) => r.ok), owned: stock[m.id] ?? 0 };
+          return { moduleId: m.id, name: m.name, slot: m.slot, size: m.size, category: m.category, group: m.group, price: modPrice(m), civilian: !!m.civilian, fitting: m.fitting, requires, canUse: requires.every((r) => r.ok), owned: stock[m.id] ?? 0 };
         }).sort((a, b) => Number(b.canUse) - Number(a.canUse) || a.price - b.price);
     },
-    'shop/categories': (state, data) => [...new Set(data.lists.modules.filter((m) => m.price > 0).map((m) => m.category))].sort()
+    'shop/categories': (state, data) => [...new Set(data.lists.modules.filter((m) => modPrice(m) > 0).map((m) => m.category))].sort()
   }
 };

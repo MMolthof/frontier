@@ -19,8 +19,9 @@ const holdUsed = (ship, data) => Object.entries(ship.oreHold ?? {}).reduce((sum,
 export function laserInfo(state, data, select) {
   const ship = activeShip(state);
   let stats = null;
-  try { stats = select?.('fitting/stats', { uid: ship?.uid }); } catch { /* ohne Fitting */ }
-  const mods = (ship?.fitting?.high ?? []).map((id) => data.modules?.[id]).filter((m) => m?.activation?.kind === 'mine');
+  const civilian = Boolean(state.pilot.cap?.civilian);
+  try { stats = select?.('fitting/stats', { uid: ship?.uid, civilianOnly: civilian }); } catch { /* ohne Fitting */ }
+  const mods = (ship?.fitting?.high ?? []).map((id) => data.modules?.[id]).filter((m) => m?.activation?.kind === 'mine' && (!civilian || m.civilian));
   const lasers = stats?.mining?.lasers ?? mods.length;
   const perTick = stats?.mining?.m3PerTick ?? mods.reduce((s, m) => s + m.activation.yieldM3 / m.activation.cycleTicks, 0);
   return {

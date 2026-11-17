@@ -22,6 +22,10 @@ export const system = {
   init(ctx) {
     const { state, data } = ctx;
     state.flags ??= {};
+    if (!state.flags.starterRenamed) { // Starterschiff wurde von „Pebble“ umbenannt: alte Spielstände übernehmen den neuen Namen
+      state.flags.starterRenamed = true;
+      for (const s of state.assets.ships) if (s.name === 'Pebble' && data.ships[s.typeId]?.name && data.ships[s.typeId].name !== 'Pebble') s.name = data.ships[s.typeId].name;
+    }
     if (state.flags.starterLoadout) return;
     state.flags.starterLoadout = true;
     const sf = data.balance.startFitting;

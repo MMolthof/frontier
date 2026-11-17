@@ -36,6 +36,21 @@ export const system = {
       return { ok: true, moved };
     },
     'inv/unloadAll': (ctx) => system.actions['inv/unload'](ctx, {}),
+    /** Zivilier-Module aus dem Stationslager verschrotten: kein ISK, keine Rohstoffe. */
+    'inv/scrap': (ctx, p) => {
+      const { state, data } = ctx;
+      const station = dockedId(state);
+      if (!station) return fail('inv.not_docked', 'Verschrotten nur in Stationen.');
+      const mod = data.modules?.[p?.itemId];
+      if (!mod?.civilian) return fail('inv.not_scrappable', 'Nur Zivilier-Module können verschrottet werden.');
+      const have = stockOf(state, station)[mod.id] ?? 0;
+      const qty = Math.min(have, Math.max(1, Math.floor(p?.qty ?? have)));
+      if (qty <= 0) return fail('inv.nothing', 'Davon liegt nichts im Stationslager.');
+      stockOf(state, station)[mod.id] = have - qty;
+      ctx.log(`${qty}× ${mod.name} verschrottet (keine Rohstoffe, kein Erlös).`);
+      ctx.emit('inv/changed', { stationId: station });
+      return { ok: true, scrapped: qty };
+    },
     'inv/load': (ctx, p) => {
       const { state, data } = ctx;
       const station = dockedId(state);
@@ -61,7 +76,7 @@ export const system = {
       if (!station) return [];
       return Object.entries(stockOf(state, station)).filter(([, q]) => q > 0).map(([itemId, qty]) => ({
         itemId, qty, name: nameOf(data, itemId), kind: data.ores?.[itemId] ? 'ore' : data.items?.[itemId]?.kind ?? (data.modules?.[itemId] ? 'module' : 'item'),
-        volumeM3: volume(data, itemId)
+        volumeM3: volume(data, itemId), scrappable: !!data.modules?.[itemId]?.civilian
       })).sort((a, b) => a.kind.localeCompare(b.kind) || a.name.localeCompare(b.name));
     },
     /** Lagerorte mit Inhalt über alle Stationen. */

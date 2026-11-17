@@ -9,13 +9,13 @@ const ENTRY_KINDS = {
     prefix: 'ship.',
     required: ['id', 'name', 'category', 'class', 'slots'],
     known: ['id', 'name', 'category', 'class', 'hull', 'tier', 'description', 'slots', 'hardpoints', 'fitting',
-      'attributes', 'bonuses', 'roleBonuses', 'requires', 'price', 'art']
+      'attributes', 'bonuses', 'roleBonuses', 'requires', 'price', 'art', 'subtitle']
   },
   modules: {
     prefix: 'mod.',
     required: ['id', 'name', 'slot'],
     known: ['id', 'name', 'slot', 'hardpoint', 'group', 'category', 'size', 'fitting', 'requires', 'activation',
-      'effects', 'price', 'permanent', 'ammo', 'description']
+      'effects', 'price', 'permanent', 'ammo', 'description', 'buyPrice', 'civilian']
   },
   skills: {
     prefix: 'skill.',

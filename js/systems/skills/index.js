@@ -42,6 +42,33 @@ function ticksFor(state, data, entry, startSp) {
   return { target, ticks: Math.max(0, Math.ceil((target - startSp) / spPerTick(state, skill))) };
 }
 
+
+/** Anzeigename der Skill-Effekte (stat -> Text) für die Skill-Ansicht. */
+const STAT_LABEL = {
+  turret_damage: 'Geschützschaden', rof: 'Feuerrate', weapon_range: 'Geschützreichweite', missile_damage: 'Raketenschaden',
+  mining_yield: 'Abbauertrag', cpu_penalty_mining_upgrade: 'CPU-Bedarf der Bergbau-Upgrades', mining_crit_chance: 'Chance auf Bonus-Ertrag',
+  scan_range_km: 'Scanreichweite', mining_range_km: 'Abbaureichweite', capacitor: 'Capacitor-Kapazität', powergrid_bonus: 'Powergrid',
+  cap_recharge_ticks: 'Capacitor-Ladezeit', calibration: 'Kalibrierung', cpu_bonus: 'CPU', lock_range_km: 'Zielerfassungsreichweite',
+  max_targets: 'Maximale Ziele', shield_hp: 'Schildkapazität', shield_boost: 'Schildreparatur', structure_hp: 'Rumpfstärke', armor_hp: 'Panzerung',
+  armor_repair: 'Panzerungsreparatur', speed: 'Geschwindigkeit', signature: 'Signaturradius', warp_speed: 'Warpgeschwindigkeit',
+  market_fee: 'Marktgebühr', standing_gain: 'Ansehensgewinn', refine_efficiency: 'Raffinationsausbeute',
+  shield_res_em: 'Schildresistenz EM', shield_res_th: 'Schildresistenz Thermisch', shield_res_kin: 'Schildresistenz Kinetisch', shield_res_exp: 'Schildresistenz Explosiv',
+  armor_res_em: 'Panzerungsresistenz EM', armor_res_th: 'Panzerungsresistenz Thermisch', armor_res_kin: 'Panzerungsresistenz Kinetisch', armor_res_exp: 'Panzerungsresistenz Explosiv'
+};
+
+/** Effekte eines Skills ohne Doppelte (gleicher Wert für mehrere Modulgruppen wird zusammengefasst): [{ stat, label, perLevel }] */
+function effectList(skill) {
+  const seen = new Set();
+  const out = [];
+  for (const e of skill.effects ?? []) {
+    const key = `${e.stat}|${e.perLevel}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ stat: e.stat, label: STAT_LABEL[e.stat] ?? e.stat, perLevel: e.perLevel });
+  }
+  return out;
+}
+
 export const system = {
   id: 'skills',
   actions: {
@@ -126,7 +153,7 @@ export const system = {
         const have = state.pilot.skills[skill.id]?.sp ?? 0;
         (groups[skill.group] ??= []).push({
           id: skill.id, name: skill.name, rank: skill.rank, level, owned: owned(state, skill.id), price: skill.price, maxLevel: skill.maxLevel ?? 5,
-          queuedTo: queuedTo(state, skill.id), nextLevel: next, canQueue: check, description: skill.description ?? '',
+          queuedTo: queuedTo(state, skill.id), nextLevel: next, canQueue: check, description: skill.description ?? '', effects: effectList(skill),
           requires: requirements(state, data, skill), nextTicks: next <= (skill.maxLevel ?? 5) ? ticksFor(state, data, { skillId: skill.id, toLevel: next }, have).ticks : 0
         });
       }

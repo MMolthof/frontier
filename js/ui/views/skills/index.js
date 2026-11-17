@@ -26,13 +26,24 @@ function trainingTab(m, ctl) {
   return h('div', { class: 'l-stack' }, msgLine(ctl.ui.msg), head, h('div', { class: 'l-grid l-grid--wide' }, queue, tips));
 }
 
+
+/** Skill-Effekt als Text: Brüche als Prozent (0,05 → 5 %), größere Zahlen absolut (Kalibrierung +10). */
+const effVal = (v) => {
+  const frac = Math.abs(v) < 1;
+  const n = frac ? Math.round(v * 1000) / 10 : v;
+  return `${n < 0 ? '−' : '+'}${fmt(Math.abs(n), frac ? 1 : 0)}${frac ? ' %' : ''}`;
+};
+const effLine = (e, s) => `${e.label}: ${effVal(e.perLevel)} je Stufe · jetzt ${effVal(e.perLevel * s.level)}, Maximum ${effVal(e.perLevel * s.maxLevel)}`;
+
 function skillRow(s, ctl) {
   let action;
   if (!s.owned) action = button({ label: `Buch kaufen (${fmt(s.price)} ISK)`, variant: 'alt', onClick: () => ctl.run('skills/buy', { skillId: s.id }) });
   else if (s.canQueue.ok) action = button({ label: `Stufe ${s.nextLevel} trainieren (${fmtTicks(s.nextTicks)})`, variant: 'primary', onClick: () => ctl.run('skills/queueAdd', { skillId: s.id }) });
   else action = h('span', { class: 'u-mute' }, s.canQueue.reason);
   const reqs = s.requires.length ? h('span', { class: 'u-mute v-skill__req' }, `Benötigt: ${s.requires.map((r) => `${r.name} ${r.level}${r.ok ? '' : ' (fehlt)'}`).join(', ')}`) : null;
-  return h('li', { class: 'v-skill' }, h('div', { class: 'v-skill__main' }, h('strong', null, s.name), h('span', { class: 'u-mute' }, ` Rang ${s.rank}`), pips(s.level, s.queuedTo, s.maxLevel), reqs), h('div', { class: 'v-skill__act' }, action));
+  return h('li', { class: 'v-skill' }, h('div', { class: 'v-skill__main' }, h('strong', null, s.name), h('span', { class: 'u-mute' }, ` Rang ${s.rank}`), pips(s.level, s.queuedTo, s.maxLevel),
+    s.description ? h('span', { class: 'v-skill__desc' }, s.description) : null,
+    ...s.effects.map((e) => h('span', { class: 'v-skill__eff' }, effLine(e, s))), reqs), h('div', { class: 'v-skill__act' }, action));
 }
 
 function catalogTab(m, ctl) {
